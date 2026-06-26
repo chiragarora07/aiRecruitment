@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HireFlow — Recruit Smartly. Decide Faster.</title>
+  <meta name="description" content="HireFlow is an AI-powered campus recruitment platform that automates CV screening, generates personalised interview questions, and delivers fair, data-backed hiring decisions — end to end." />
+  <meta name="keywords" content="campus recruitment, AI hiring, student recruitment, AI screening, college placement, HireFlow, recruitment platform" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://hireflow.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="HireFlow — Recruit Smartly. Decide Faster." />
+  <meta property="og:description" content="AI-powered campus recruitment. From CV screening to final selection — structured, fast, and fair." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://hireflow.app/" />
+  <meta property="og:image" content="https://hireflow.app/og-cover.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HireFlow — Recruit Smartly. Decide Faster." />
+  <meta name="twitter:description" content="AI-powered campus recruitment. From CV screening to final selection — structured, fast, and fair." />
+  <meta name="twitter:image" content="https://hireflow.app/og-cover.png" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HireFlow",
+    "url": "https://hireflow.app",
+    "description": "AI-powered campus recruitment platform for student organizations.",
+    "logo": "https://hireflow.app/logo.png",
+    "sameAs": [
+      "https://linkedin.com/company/hireflow",
+      "https://github.com/hireflow",
+      "https://twitter.com/hireflowapp"
+    ]
+  }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    /* ── Design Tokens ── */
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --white:     #FFFFFF;
+      --red:       #EF4444;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Utility ── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; }
+    .section-label {
+      display: inline-block;
+      font-family: var(--ff-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue);
+      background: var(--blue-glow);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 20px;
+    }
+    h1,h2,h3,h4 { font-family: var(--ff-head); font-weight: 700; line-height: 1.15; }
+    h1 { font-size: clamp(2.4rem, 5.5vw, 4.2rem); }
+    h2 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); }
+    h3 { font-size: 1.15rem; }
+    p { color: var(--muted); line-height: 1.75; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px;
+      border-radius: var(--radius);
+      font-family: var(--ff-body);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--blue-dark);
+      box-shadow: 0 0 36px rgba(59,130,246,0.55);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-2px);
+    }
+
+    /* ── Scroll fade-in ── */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ══════════════════════════════════════
+       NAV
+    ══════════════════════════════════════ */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 0;
+      transition: all 0.3s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(10,15,30,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 9px;
+      font-family: var(--ff-head); font-size: 1.25rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+    }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 8px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;
+      padding: 7px 14px; border-radius: 8px;
+      transition: all var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; background: none; border: none; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(10,15,30,0.97);
+      backdrop-filter: blur(20px);
+      z-index: 99; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      padding: 24px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text); font-size: 1.25rem; font-weight: 600;
+      text-decoration: none; padding: 14px 28px; border-radius: var(--radius);
+      width: 100%; text-align: center; max-width: 280px;
+      transition: all var(--transition);
+    }
+    .mobile-menu a:hover { background: var(--surface); }
+    .mobile-menu .btn-primary { margin-top: 12px; width: 100%; max-width: 280px; justify-content: center; }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 120px 0 80px;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 50%);
+    }
+    /* dot grid */
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+    .hero-inner {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .hero-headline { margin-bottom: 20px; }
+    .hero-headline .accent { color: var(--blue); }
+    .hero-sub { font-size: 1.1rem; margin-bottom: 36px; max-width: 480px; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    /* Dashboard mockup */
+    .hero-visual {
+      position: relative;
+    }
+    .dashboard-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+    .dash-topbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .dash-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dash-title { font-family: var(--ff-head); font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-left: auto; }
+    .dash-body { padding: 20px; }
+    .dash-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 8px;
+      margin-bottom: 8px; background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+    .dash-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+    }
+    .dash-name { flex: 1; }
+    .dash-name-text { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .dash-name-sub { font-size: 0.72rem; color: var(--muted); }
+    .dash-score {
+      font-family: var(--ff-head); font-size: 0.9rem; font-weight: 700;
+    }
+    .dash-badge {
+      font-size: 0.67rem; font-weight: 600; padding: 3px 9px;
+      border-radius: 100px;
+    }
+    .badge-sel { background: rgba(34,197,94,0.15); color: #22C55E; border: 1px solid rgba(34,197,94,0.3); }
+    .badge-wait { background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-ai { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+    .dash-progress { margin-top: 16px; }
+    .dp-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 7px; }
+    .dp-bar-bg { height: 5px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }
+    .dp-bar { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+    .dash-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
+    .ds { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+    .ds-num { font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700; color: var(--blue); }
+    .ds-label { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .glow-orb {
+      position: absolute; border-radius: 50%;
+      pointer-events: none;
+    }
+    .orb1 {
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(59,130,246,0.25) 0%, transparent 70%);
+      top: -40px; right: -40px;
+    }
+    .orb2 {
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(6,182,212,0.2) 0%, transparent 70%);
+      bottom: -30px; left: -30px;
+    }
+
+    /* ══════════════════════════════════════
+       PROBLEM BANNER
+    ══════════════════════════════════════ */
+    #problem {
+      background: linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(6,182,212,0.04) 100%);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 80px 0;
+    }
+    .problem-heading { text-align: center; margin-bottom: 48px; }
+    .problem-heading h2 span { color: var(--blue); }
+    .pain-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .pain-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: all var(--transition);
+    }
+    .pain-card:hover { border-color: rgba(59,130,246,0.3); transform: translateY(-4px); }
+    .pain-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.2);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
+    }
+    .pain-card h3 { font-size: 1rem; margin-bottom: 8px; }
+
+    /* ══════════════════════════════════════
+       FEATURES
+    ══════════════════════════════════════ */
+    #features { background: var(--bg2); }
+    .features-head { text-align: center; margin-bottom: 56px; }
+    .features-head p { max-width: 520px; margin: 12px auto 0; }
+    .features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      opacity: 0; transition: opacity var(--transition);
+    }
+    .feat-card:hover { border-color: rgba(59,130,246,0.3); transform: translateY(-4px); }
+    .feat-card:hover::before { opacity: 1; }
+    .feat-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.2);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 16px;
+    }
+    .feat-card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .feat-card p { font-size: 0.88rem; }
+
+    /* ══════════════════════════════════════
+       PIPELINE
+    ══════════════════════════════════════ */
+    #pipeline { background: var(--bg); }
+    .pipeline-head { text-align: center; margin-bottom: 60px; }
+    .pipeline-head p { max-width: 480px; margin: 12px auto 0; }
+    .pipeline-track {
+      display: flex; align-items: flex-start; gap: 0;
+      position: relative;
+    }
+    .pipeline-track::before {
+      content: '';
+      position: absolute; top: 26px; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      z-index: 0;
+    }
+    .pipe-step {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 12px; position: relative; z-index: 1;
+    }
+    .pipe-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--surface); border: 2px solid var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-head); font-size: 1.1rem; font-weight: 700; color: var(--blue);
+      margin-bottom: 16px;
+      position: relative; z-index: 2;
+      transition: all var(--transition);
+      box-shadow: 0 0 0 4px var(--bg), 0 0 20px rgba(59,130,246,0);
+    }
+    .pipe-step.active .pipe-num {
+      background: var(--blue); color: #fff;
+      box-shadow: 0 0 0 4px var(--bg), 0 0 20px rgba(59,130,246,0.5);
+    }
+    .pipe-step h3 { font-size: 0.9rem; margin-bottom: 6px; }
+    .pipe-step p { font-size: 0.8rem; color: var(--muted2); max-width: 120px; }
+
+    /* ══════════════════════════════════════
+       ROLES
+    ══════════════════════════════════════ */
+    #roles { background: var(--bg2); }
+    .roles-head { text-align: center; margin-bottom: 56px; }
+    .roles-head p { max-width: 480px; margin: 12px auto 0; }
+    .roles-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+    .role-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .role-card::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: var(--radius-lg);
+      box-shadow: inset 0 0 0 1px rgba(59,130,246,0);
+      transition: box-shadow var(--transition);
+    }
+    .role-card:hover { transform: translateY(-6px); }
+    .role-card:hover::after { box-shadow: inset 0 0 0 1px rgba(59,130,246,0.5); }
+    .role-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.25);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+    }
+    .role-card h3 { font-size: 1.15rem; margin-bottom: 6px; }
+    .role-card .role-sub { font-size: 0.82rem; color: var(--blue); font-weight: 600; margin-bottom: 18px; }
+    .role-card ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+    .role-card ul li {
+      display: flex; align-items: flex-start; gap: 9px;
+      font-size: 0.86rem; color: var(--muted);
+    }
+    .role-card ul li::before {
+      content: '';
+      display: block; flex-shrink: 0;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--blue); margin-top: 7px;
+    }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 60px 0 32px;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 48px;
+      padding-bottom: 48px; border-bottom: 1px solid var(--border);
+    }
+    .footer-brand .nav-logo { margin-bottom: 14px; }
+    .footer-brand p { font-size: 0.88rem; max-width: 260px; margin-bottom: 20px; }
+    .social-links { display: flex; gap: 10px; }
+    .social-link {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); text-decoration: none;
+      transition: all var(--transition);
+    }
+    .social-link:hover { border-color: rgba(59,130,246,0.4); color: var(--blue); }
+    .footer-col h4 { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color var(--transition); }
+    .footer-col ul a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 28px; gap: 16px; flex-wrap: wrap;
+    }
+    .footer-bottom p { font-size: 0.8rem; color: var(--muted2); }
+
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .hero-inner { gap: 40px; }
+      .features-grid { grid-template-columns: repeat(2,1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 72px 0; }
+      .nav-links, .nav-right .btn { display: none; }
+      .hamburger { display: flex; }
+
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .hero-ctas { flex-direction: column; }
+      .hero-ctas .btn { width: 100%; justify-content: center; }
+
+      .pain-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+
+      .pipeline-track { flex-direction: column; align-items: flex-start; gap: 0; }
+      .pipeline-track::before { top: 0; bottom: 0; left: 26px; right: auto; width: 2px; height: 100%; }
+      .pipe-step {
+        flex-direction: row; align-items: flex-start;
+        text-align: left; gap: 16px; padding: 0 0 32px 0; width: 100%;
+      }
+      .pipe-step:last-child { padding-bottom: 0; }
+      .pipe-num { flex-shrink: 0; margin-bottom: 0; }
+      .pipe-step p { max-width: 100%; }
+
+      .roles-grid { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2rem; }
+      h2 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<header id="navbar" role="banner">
+  <div class="container">
+    <nav class="nav-inner" aria-label="Main navigation">
+      <a href="#" class="nav-logo" aria-label="HireFlow home">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="7" fill="#3B82F6"/>
+          <path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/>
+          <path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        HireFlow
+      </a>
+      <ul class="nav-links" role="list">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pipeline">How It Works</a></li>
+        <li><a href="#roles">Roles</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="#" class="btn btn-ghost" style="padding:10px 20px;font-size:0.875rem;">Log In</a>
+        <a href="#" class="btn btn-primary" style="padding:10px 20px;font-size:0.875rem;">Register</a>
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- Mobile menu -->
+<nav class="mobile-menu" id="mobile-menu" role="navigation" aria-label="Mobile navigation">
+  <a href="#features" class="mobile-link">Features</a>
+  <a href="#pipeline" class="mobile-link">How It Works</a>
+  <a href="#roles" class="mobile-link">Roles</a>
+  <a href="#" class="btn btn-ghost" style="width:100%;max-width:280px;justify-content:center;">Log In</a>
+  <a href="#" class="btn btn-primary" style="margin-top:0;">Register</a>
+</nav>
+
+<main>
+
+<!-- ══ HERO ══ -->
+<section id="hero" aria-label="Hero">
+  <div class="hero-bg"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <h1 class="hero-headline">
+          Recruit <span class="accent">Smartly.</span><br />Decide Faster.
+        </h1>
+        <p class="hero-sub">HireFlow turns chaotic campus recruitment into a structured, AI-powered pipeline. Every score is justified. Every candidate gets a fair shot.</p>
+        <div class="hero-ctas">
+          <a href="#" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Apply as Candidate
+          </a>
+          <a href="#" class="btn btn-ghost">
+            Set Up Your Org
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="glow-orb orb1"></div>
+        <div class="glow-orb orb2"></div>
+        <div class="dashboard-card">
+          <div class="dash-topbar">
+            <div class="dash-dot" style="background:#EF4444"></div>
+            <div class="dash-dot" style="background:#F59E0B"></div>
+            <div class="dash-dot" style="background:#22C55E"></div>
+            <span class="dash-title">HireFlow · Score Matrix</span>
+          </div>
+          <div class="dash-body">
+            <div class="dash-row">
+              <div class="dash-avatar" style="background:rgba(59,130,246,0.2);color:#3B82F6;">RS</div>
+              <div class="dash-name">
+                <div class="dash-name-text">Rahul Sharma</div>
+                <div class="dash-name-sub">B.Tech CSE · 3rd Year</div>
+              </div>
+              <div class="dash-score" style="color:#22C55E;">91.4</div>
+              <span class="dash-badge badge-sel">Selected</span>
+            </div>
+            <div class="dash-row">
+              <div class="dash-avatar" style="background:rgba(6,182,212,0.2);color:#06B6D4;">PK</div>
+              <div class="dash-name">
+                <div class="dash-name-text">Priya Kaur</div>
+                <div class="dash-name-sub">B.Tech ECE · 2nd Year</div>
+              </div>
+              <div class="dash-score" style="color:#F59E0B;">78.2</div>
+              <span class="dash-badge badge-wait">Waitlist</span>
+            </div>
+            <div class="dash-row">
+              <div class="dash-avatar" style="background:rgba(59,130,246,0.15);color:#3B82F6;">AM</div>
+              <div class="dash-name">
+                <div class="dash-name-text">Arjun Mehta</div>
+                <div class="dash-name-sub">B.Tech IT · 3rd Year</div>
+              </div>
+              <div class="dash-score" style="color:#3B82F6;">85.0</div>
+              <span class="dash-badge badge-ai">AI Round ✓</span>
+            </div>
+            <div class="dash-progress">
+              <div class="dp-label"><span>Drive Progress</span><span>68%</span></div>
+              <div class="dp-bar-bg"><div class="dp-bar" style="width:68%"></div></div>
+            </div>
+            <div class="dash-stats">
+              <div class="ds"><div class="ds-num">124</div><div class="ds-label">Applicants</div></div>
+              <div class="ds"><div class="ds-num">47</div><div class="ds-label">AI Screened</div></div>
+              <div class="ds"><div class="ds-num">12</div><div class="ds-label">Selected</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROBLEM ══ -->
+<section id="problem" aria-labelledby="problem-heading">
+  <div class="container">
+    <div class="problem-heading reveal">
+      <div class="section-label">The Problem</div>
+      <h2 id="problem-heading">Campus recruitment today is <span>broken</span></h2>
+      <p style="max-width:500px;margin:12px auto 0;">The same painful process, repeated every semester — and it never improves.</p>
+    </div>
+    <div class="pain-grid">
+      <div class="pain-card reveal reveal-delay-1">
+        <div class="pain-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M11 2v4M11 16v4M2 11h4M16 11h4M5 5l2.5 2.5M14.5 14.5L17 17M5 17l2.5-2.5M14.5 7.5L17 5" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Manual &amp; Time-Consuming</h3>
+        <p>Teams spend weeks reading CVs and coordinating offline — time that could go into actual work.</p>
+      </div>
+      <div class="pain-card reveal reveal-delay-2">
+        <div class="pain-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="9" stroke="#3B82F6" stroke-width="1.8"/><path d="M11 7v5l3 3" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Gut-Feel Decisions</h3>
+        <p>Shortlisting is inconsistent and biased. There's no structured rubric — just vibes and WhatsApp debates.</p>
+      </div>
+      <div class="pain-card reveal reveal-delay-3">
+        <div class="pain-icon">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M4 18l4-4m0 0l4 4 4-8-8 4zm4-4V4" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Zero Candidate Experience</h3>
+        <p>Results arrive days late via WhatsApp forwards. Candidates wait, wonder, and lose trust in the process.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section id="features" class="section" aria-labelledby="features-heading">
+  <div class="container">
+    <div class="features-head reveal">
+      <div class="section-label">Features</div>
+      <h2 id="features-heading">Everything recruitment needs, nothing it doesn't</h2>
+      <p>Built for the way campus orgs actually work — from the first application to the final email.</p>
+    </div>
+    <div class="features-grid">
+      <article class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h9M3 15h11" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="15" r="3" fill="#3B82F6"/><path d="M15 15l.8.8 1.2-1.2" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>AI CV Screening</h3>
+        <p>Parses every uploaded CV and scores skill-fit, experience alignment, and project relevance against the role.</p>
+      </article>
+      <article class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3a7 7 0 100 14A7 7 0 0010 3z" stroke="#3B82F6" stroke-width="1.8"/><path d="M10 7v3l2 2" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Personalised Interview Questions</h3>
+        <p>AI generates 5–8 unique, CV-aware questions per candidate. No two candidates see the same set.</p>
+      </article>
+      <article class="feat-card reveal reveal-delay-3">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="3" stroke="#3B82F6" stroke-width="1.8"/><path d="M7 10l2 2 4-4" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Structured Scorecard</h3>
+        <p>Interviewers submit per-criteria scores and written remarks. No free-form chaos — every score is on record.</p>
+      </article>
+      <article class="feat-card reveal reveal-delay-1">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 16L7 8l4 5 3-3 3 6" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Weighted Score Matrix</h3>
+        <p>CV, AI, and PI scores combined via admin-set weightages. Adjust them anytime — rankings auto-recompute.</p>
+      </article>
+      <article class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 4h14v10H3z" stroke="#3B82F6" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 17h6M10 14v3" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Automated Result Emails</h3>
+        <p>One click sends personalised acceptance, waitlist, or thank-you emails to every candidate simultaneously.</p>
+      </article>
+      <article class="feat-card reveal reveal-delay-3">
+        <div class="feat-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="7" r="3" stroke="#3B82F6" stroke-width="1.8"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/><path d="M14 3l1.5 1.5L17 3" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Role-Based Access Control</h3>
+        <p>Admin, Applicant, and Interviewer roles enforced at the server level — not just hidden on the frontend.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PIPELINE ══ -->
+<section id="pipeline" class="section" aria-labelledby="pipeline-heading">
+  <div class="container">
+    <div class="pipeline-head reveal">
+      <div class="section-label">How It Works</div>
+      <h2 id="pipeline-heading">One linear pipeline. Five locked stages.</h2>
+      <p>Every stage gates the next. No skipping, no shortcuts — just a clean, auditable process.</p>
+    </div>
+    <div class="pipeline-track" role="list">
+      <div class="pipe-step active reveal reveal-delay-1" role="listitem">
+        <div class="pipe-num" aria-hidden="true">1</div>
+        <div>
+          <h3>Org Setup</h3>
+          <p>Admin creates org, drive, and sets stage weightages</p>
+        </div>
+      </div>
+      <div class="pipe-step reveal reveal-delay-2" role="listitem">
+        <div class="pipe-num" aria-hidden="true">2</div>
+        <div>
+          <h3>Open Drive</h3>
+          <p>Candidates discover and apply before the deadline</p>
+        </div>
+      </div>
+      <div class="pipe-step reveal reveal-delay-3" role="listitem">
+        <div class="pipe-num" aria-hidden="true">3</div>
+        <div>
+          <h3>AI Screening</h3>
+          <p>CV scored and personalised questions generated for every applicant</p>
+        </div>
+      </div>
+      <div class="pipe-step reveal reveal-delay-4" role="listitem">
+        <div class="pipe-num" aria-hidden="true">4</div>
+        <div>
+          <h3>PI Round</h3>
+          <p>Interviewers view AI scores and submit structured scorecards</p>
+        </div>
+      </div>
+      <div class="pipe-step reveal reveal-delay-5" role="listitem">
+        <div class="pipe-num" aria-hidden="true">5</div>
+        <div>
+          <h3>Results</h3>
+          <p>Final scores aggregated; result emails dispatched automatically</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ROLES ══ -->
+<section id="roles" class="section" aria-labelledby="roles-heading">
+  <div class="container">
+    <div class="roles-head reveal">
+      <div class="section-label">Roles</div>
+      <h2 id="roles-heading">Built for every person in the room</h2>
+      <p>Three distinct roles. One shared goal: a fair, fast recruitment.</p>
+    </div>
+    <div class="roles-grid">
+      <article class="role-card reveal reveal-delay-1">
+        <div class="role-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><circle cx="13" cy="9" r="4" stroke="#3B82F6" stroke-width="1.8"/><path d="M5 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/><path d="M18 5l1.5 1.5L22 4" stroke="#06B6D4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Admin</h3>
+        <p class="role-sub">Full platform control</p>
+        <ul>
+          <li>Create and manage organisations</li>
+          <li>Open recruitment drives with custom weightages</li>
+          <li>Assign interviewers to candidates</li>
+          <li>View the full score matrix and make selections</li>
+          <li>Dispatch result emails in one action</li>
+        </ul>
+      </article>
+      <article class="role-card reveal reveal-delay-2">
+        <div class="role-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><circle cx="13" cy="9" r="4" stroke="#3B82F6" stroke-width="1.8"/><path d="M5 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Applicant</h3>
+        <p class="role-sub">Your shot at a fair process</p>
+        <ul>
+          <li>Discover orgs and browse active drives</li>
+          <li>Submit application with CV upload</li>
+          <li>Complete the timed AI interview round</li>
+          <li>Track status across all stages in real time</li>
+          <li>Receive automated, personalised result emails</li>
+        </ul>
+      </article>
+      <article class="role-card reveal reveal-delay-3">
+        <div class="role-icon">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><rect x="4" y="5" width="18" height="16" rx="3" stroke="#3B82F6" stroke-width="1.8"/><path d="M9 10h8M9 14h5" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Interviewer</h3>
+        <p class="role-sub">Walk in prepared, decide with data</p>
+        <ul>
+          <li>View assigned candidates' full profiles and CVs</li>
+          <li>See AI-generated questions and candidate responses</li>
+          <li>Review AI score before the personal interview</li>
+          <li>Submit a structured scorecard with per-criteria marks</li>
+          <li>Scores lock on submission — no second-guessing</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+<!-- ══ FOOTER ══ -->
+<footer role="contentinfo">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" aria-label="HireFlow">
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          HireFlow
+        </a>
+        <p>Recruit Smartly. Decide Faster. The campus recruitment platform that finally gets it right.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="LinkedIn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.2 5.5H1V15h2.2V5.5zM2.1 4.5a1.3 1.3 0 100-2.6 1.3 1.3 0 000 2.6zM15 15h-2.2v-4.6c0-.8-.6-1.4-1.4-1.4s-1.4.6-1.4 1.4V15H7.8V5.5H10v1.2a3 3 0 012.4-1.3c1.8 0 2.6 1.2 2.6 3V15z"/></svg>
+          </a>
+          <a href="#" class="social-link" aria-label="GitHub">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1a7 7 0 00-2.2 13.6c.35.06.48-.15.48-.34v-1.2c-1.95.42-2.36-.95-2.36-.95-.32-.81-.78-1.03-.78-1.03-.64-.43.05-.42.05-.42.7.05 1.07.72 1.07.72.62 1.07 1.64.76 2.04.58.06-.45.24-.76.44-.94-1.56-.18-3.2-.78-3.2-3.47 0-.77.27-1.4.72-1.89-.07-.18-.31-.9.07-1.87 0 0 .59-.19 1.93.72A6.7 6.7 0 018 5.3c.6 0 1.2.08 1.76.23 1.34-.91 1.93-.72 1.93-.72.38.97.14 1.69.07 1.87.45.49.72 1.12.72 1.89 0 2.7-1.64 3.29-3.2 3.47.25.22.48.65.48 1.31v1.94c0 .19.13.4.48.34A7 7 0 008 1z"/></svg>
+          </a>
+          <a href="#" class="social-link" aria-label="Twitter / X">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M12.6 1h2.4L9.8 6.8 16 15h-4.5l-3.7-4.9L3.5 15H1.1l5.5-6.3L0 1h4.6l3.4 4.5L12.6 1zm-.8 12.6h1.3L4.2 2.3H2.8l9 11.3z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pipeline">How It Works</a></li>
+          <li><a href="#roles">Roles</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">GitHub Repository</a></li>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 HireFlow. Built with purpose for campus communities.</p>
+
+    </div>
+  </div>
+</footer>
+
+<script>
+  /* ── Nav scroll ── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  /* ── Hamburger ── */
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger.addEventListener('click', () => {
+    const open = hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    });
+  });
+
+  /* ── Scroll reveal ── */
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => revealObs.observe(el));
+
+  /* ── Pipeline step animation ── */
+  const pipeSteps = document.querySelectorAll('.pipe-step');
+  let pipeIdx = 0;
+  function cyclePipeline() {
+    pipeSteps.forEach(s => s.classList.remove('active'));
+    pipeSteps[pipeIdx].classList.add('active');
+    pipeIdx = (pipeIdx + 1) % pipeSteps.length;
+  }
+  setInterval(cyclePipeline, 1800);
+
+  /* Smooth scroll */
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+</script>
+</body>
+</html>
