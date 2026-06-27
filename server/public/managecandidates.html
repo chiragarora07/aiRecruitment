@@ -702,7 +702,7 @@
     try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch("http://localhost:5000/api/applications", {
+        const response = await fetch("http://https://hireflow-ke1s.onrender.com/api/applications", {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -897,7 +897,7 @@ async function executeAction() {
         try {
 
             const response = await fetch(
-                `http://localhost:5000/api/applications/${id}`,
+                `http://https://hireflow-ke1s.onrender.com/api/applications/${id}`,
                 {
                     method: "DELETE",
                     headers: {

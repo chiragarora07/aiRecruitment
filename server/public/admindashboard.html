@@ -1515,7 +1515,7 @@ async function loadDashboard() {
     try {
 const token = localStorage.getItem("token");
 
-const response = await fetch("http://localhost:5000/api/dashboard/stats", {
+const response = await fetch("http://https://hireflow-ke1s.onrender.com/api/dashboard/stats", {
     headers: {
         Authorization: `Bearer ${token}`
     }
