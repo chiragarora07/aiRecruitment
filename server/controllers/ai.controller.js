@@ -1,8 +1,6 @@
-import { testAI } from "../services/gemini.service.js";
-export const checkAI = async (req,res)=>{
-    const message = await testAI();
+export const checkAI = async (req, res) => {
     res.status(200).json({
         success: true,
-        message
+        message: "AI service is working."
     });
 };
