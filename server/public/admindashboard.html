@@ -1505,7 +1505,7 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
   </div>
 </div>
-<script src="config.js"></script>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA
@@ -1661,7 +1661,7 @@ function generateResumeData(){
     };
   });
 }
-//const resumeData = generateResumeData();
+const resumeData = generateResumeData();
 
 function generateResults(){
   return (candidates || []).slice(0,50).map((c,i)=>{
@@ -1671,7 +1671,7 @@ function generateResults(){
     return { candidate:c, drive:drive.name.split(' ')[0], resume:c.ats, ivr:c.ivr, ai:c.ai, final:c.final, decision, remark:rndFrom(['Good Communication','Strong Tech Skills','Below Expectations','Outstanding Performance','Average','Exceptional Problem Solving']) };
   });
 }
-//const resultsData = generateResults();
+const resultsData = generateResults();
 
 // ═══════════════════════════════════════════════════════════════
 // NAVIGATION
@@ -2676,26 +2676,22 @@ document.addEventListener('keydown',e=>{
 });
 
     window.addEventListener("load", () => {
-    console.log("1. Window Loaded");
+        console.log("1. Window Loaded");
 
-    try {
-        console.log("2. Before init");
-        init();
-        console.log("3. After init");
+        try {
+            console.log("2. Before init");
+            init();
+            console.log("3. After init");
 
-        console.log("4. Before loadDashboard");
-        loadDashboard();
-        console.log("5. After loadDashboard");
-
-        console.log("6. Before loadDrives");
-        //loadDrives();
-        console.log("7. After loadDrives");
-
-    } catch (e) {
-        console.error("INIT ERROR:", e);
-    }
-});
+            console.log("4. Before loadDashboard");
+            loadDashboard();
+            console.log("5. After loadDashboard");
+        } catch (e) {
+            console.error("INIT ERROR:", e);
+        }
+    });
 </script>
 
+<script src="auth.js"></script>
 </body>
 </html>
