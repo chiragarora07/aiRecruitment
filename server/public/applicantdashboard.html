@@ -387,9 +387,9 @@
     </a>
 
     <div class="sidebar-user">
-      <div class="avatar">RS</div>
+      <div class="avatar" id="avatar"></div>
       <div>
-        <div class="user-name">Rahul Sharma</div>
+        <div class="user-name" id="userName"></div>
         <div class="user-role">Applicant · B.Tech CSE</div>
       </div>
     </div>
@@ -442,7 +442,7 @@
 
       <!-- greeting -->
       <div class="greeting reveal">
-        <h2>Welcome back, Rahul 👋</h2>
+        <h2 id="welcomeText"></h2>
         <p>Here's a snapshot of your recruitment activity.</p>
       </div>
 
@@ -651,9 +651,9 @@
           <!-- Profile -->
           <div class="profile-card reveal">
             <div class="profile-card-top">
-              <div class="profile-avatar">RS</div>
+              <div class="profile-avatar" id="profileAvatar"></div>
               <div>
-                <div class="profile-name">Rahul Sharma</div>
+                <div class="profile-name" id="profileName"></div>
                 <div class="profile-meta">B.Tech CSE · 3rd Year</div>
                 <div class="profile-meta">IIT Bombay</div>
               </div>
@@ -740,7 +740,7 @@
     </main>
   </div>
 </div>
-
+<script src="config.js"></script>
 <script>
   /* reveal */
   const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }), { threshold: 0.06 });
@@ -761,6 +761,28 @@
     document.getElementById('countdown').textContent = `${d}d ${h}h ${m}m`;
   }
   tick(); setInterval(tick, 30000);
+</script>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+    document.getElementById("userName").textContent = user.name;
+
+    document.getElementById("profileName").textContent = user.name;
+
+    document.getElementById("welcomeText").textContent =
+        `Welcome back, ${user.name} 👋`;
+
+    const initials = user.name
+        .split(" ")
+        .map(n => n[0])
+        .join("")
+        .toUpperCase();
+
+    document.getElementById("avatar").textContent = initials;
+    document.getElementById("profileAvatar").textContent = initials;
+}
 </script>
 <script src="auth.js"></script>
 </body>
