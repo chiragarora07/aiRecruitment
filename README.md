@@ -1,15 +1,20 @@
-# 🚀 HireFlow (Under Construction)
+# 🚀 HireFlow
 
 <div align="center">
 
 ### AI-Powered Smart Recruitment Platform
 
-*Recruit Smarter. Hire Faster. Powered by AI.*
+### *Recruit Smarter. Hire Faster. Powered by AI.*
+
+<br>
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live-Demo-success?style=for-the-badge)](https://hireflow-ke1s.onrender.com)
+[![Project Demo](https://img.shields.io/badge/🎥_Demo_Video-4285F4?style=for-the-badge)](https://drive.google.com/file/d/1br8R-y_D--tyY8JPU2L0wdrsql1XtcrQ/view?usp=sharing)
 
 <br>
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge\&logo=nodedotjs\&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge\&logo=express\&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge\&logo=express\&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge\&logo=postgresql\&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge\&logo=prisma)
 ![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge\&logo=google)
@@ -21,11 +26,31 @@
 
 # 📖 About
 
-**HireFlow** is a full-stack AI-powered recruitment platform that simplifies the hiring process for organizations and candidates.
+**HireFlow** is a full-stack AI-powered recruitment platform that modernizes and simplifies the campus recruitment process.
 
-The platform enables recruiters to create recruitment drives, manage organizations, review applications, and leverage **Google Gemini AI** to automatically analyze resumes, calculate ATS scores, identify missing skills, and generate interview questions.
+It enables recruiters to create organizations, manage hiring drives, evaluate candidates, and leverage **Google Gemini AI** to automatically analyze resumes, generate ATS scores, identify missing skills, provide improvement suggestions, and generate interview questions.
 
-Designed for modern hiring workflows, HireFlow combines automation, intelligent resume screening, and role-based access into one seamless platform.
+Designed for hackathons and real-world recruitment workflows, HireFlow combines automation, intelligent resume screening, and role-based access into one seamless platform.
+
+---
+
+# 🌐 Live Demo
+
+### 🚀 Deployed Application
+
+**Live Website**
+
+👉 https://hireflow-ke1s.onrender.com
+
+---
+
+### 🎥 Project Demonstration
+
+Watch the complete walkthrough of HireFlow
+
+👉 https://drive.google.com/file/d/1br8R-y_D--tyY8JPU2L0wdrsql1XtcrQ/view?usp=sharing
+
+> **Note:** The application is deployed on **Render's Free Tier**. The first request may take **30–60 seconds** while the server wakes up.
 
 ---
 
@@ -33,35 +58,38 @@ Designed for modern hiring workflows, HireFlow combines automation, intelligent 
 
 ## 🔐 Authentication
 
-* Secure JWT Authentication
-* User Registration & Login
-* Role-Based Access (Admin, Candidate, Interviewer)
+* JWT Authentication
+* Secure Login & Registration
+* Role-Based Access Control
+* Admin
+* Candidate
+* Interviewer
 
 ---
 
 ## 🏢 Organization Management
 
 * Create Organizations
-* Manage Recruitment Organizations
-* Organization Dashboard
+* Manage Organizations
+* View Organization Details
 
 ---
 
 ## 💼 Recruitment Drives
 
 * Create Hiring Drives
-* Manage Drive Status
-* Set Application Deadlines
-* View Active Drives
+* Manage Active Drives
+* Application Deadlines
+* Drive Status Management
 
 ---
 
 ## 👨‍🎓 Candidate Portal
 
 * Browse Available Drives
-* Apply for Recruitment Drives
-* Upload Resume
-* Track Applications
+* Apply to Recruitment Drives
+* Resume Upload
+* Application Tracking
 
 ---
 
@@ -72,6 +100,8 @@ Powered by **Google Gemini**
 ✔ ATS Score Generation
 
 ✔ Resume Parsing
+
+✔ Skill Extraction
 
 ✔ Strength Analysis
 
@@ -87,33 +117,33 @@ Powered by **Google Gemini**
 
 ## 📄 Resume Management
 
-* PDF Resume Upload
+* PDF Upload
 * Resume Storage
-* Resume History
-* Resume linked to Applications
+* Resume Analysis History
+* Resume linked with Applications
 
 ---
 
 ## 📊 Application Management
 
 * Candidate Applications
-* AI Resume Scores
 * Resume Analysis Storage
-* Application Tracking
+* AI Score Management
+* Resume Tracking
 
 ---
 
 # 🛠 Tech Stack
 
-| Category       | Technologies            |
-| -------------- | ----------------------- |
-| Frontend       | HTML5, CSS3, JavaScript |
-| Backend        | Node.js, Express.js     |
-| Database       | PostgreSQL + Prisma ORM |
-| Authentication | JWT                     |
-| AI             | Google Gemini API       |
-| File Upload    | Multer                  |
-| Resume Parsing | PDF-Parse               |
+| Layer              | Technologies                    |
+| ------------------ | ------------------------------- |
+| **Frontend**       | HTML5, CSS3, Vanilla JavaScript |
+| **Backend**        | Node.js, Express.js             |
+| **Database**       | PostgreSQL + Prisma ORM         |
+| **Authentication** | JWT                             |
+| **AI Engine**      | Google Gemini API               |
+| **File Upload**    | Multer                          |
+| **Resume Parser**  | PDF-Parse                       |
 
 ---
 
@@ -123,19 +153,33 @@ Powered by **Google Gemini**
 aiRecruitment/
 │
 ├── server/
+│   │
 │   ├── config/
 │   ├── controllers/
 │   ├── middleware/
 │   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
 │   ├── prompts/
 │   ├── public/
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── admindashboard.html
+│   │   ├── applicantdashboard.html
+│   │   ├── interviewerdashboard.html
+│   │   ├── managedrives.html
+│   │   ├── organisations.html
+│   │   ├── applytodrive.html
+│   │   ├── resumeanalysis.html
+│   │   └── ...
 │   ├── routes/
 │   ├── services/
 │   ├── uploads/
 │   ├── utils/
 │   ├── validators/
 │   ├── app.js
-│   └── package.json
+│   ├── package.json
+│   └── package-lock.json
 │
 ├── README.md
 └── .gitignore
@@ -143,7 +187,7 @@ aiRecruitment/
 
 ---
 
-# ⚙ Installation
+# ⚙️ Installation
 
 ### Clone Repository
 
@@ -165,16 +209,16 @@ npm install
 
 ---
 
-### Configure Environment
+### Create Environment Variables
 
-Create a **.env** file
+Create a **.env** file inside the `server` folder.
 
 ```env
 PORT=5000
 
-DATABASE_URL=YOUR_DATABASE_URL
+DATABASE_URL=YOUR_POSTGRESQL_DATABASE_URL
 
-JWT_SECRET=YOUR_SECRET
+JWT_SECRET=YOUR_SECRET_KEY
 
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
@@ -197,13 +241,13 @@ npx prisma migrate dev
 
 ---
 
-### Start Server
+### Start Development Server
 
 ```bash
 npm run dev
 ```
 
-Open
+Open the application:
 
 ```
 http://localhost:5000
@@ -215,44 +259,54 @@ http://localhost:5000
 
 ## Authentication
 
-* POST `/api/auth/register`
-* POST `/api/auth/login`
+| Method | Endpoint             |
+| ------ | -------------------- |
+| POST   | `/api/auth/register` |
+| POST   | `/api/auth/login`    |
 
 ---
 
 ## Organizations
 
-* GET `/api/organizations`
-* POST `/api/organizations`
+| Method | Endpoint             |
+| ------ | -------------------- |
+| GET    | `/api/organizations` |
+| POST   | `/api/organizations` |
 
 ---
 
 ## Recruitment Drives
 
-* GET `/api/drives`
-* POST `/api/drives`
-* PUT `/api/drives/:id`
-* DELETE `/api/drives/:id`
+| Method | Endpoint          |
+| ------ | ----------------- |
+| GET    | `/api/drives`     |
+| POST   | `/api/drives`     |
+| PUT    | `/api/drives/:id` |
+| DELETE | `/api/drives/:id` |
 
 ---
 
 ## Applications
 
-* POST `/api/applications`
-* GET `/api/applications`
+| Method | Endpoint            |
+| ------ | ------------------- |
+| POST   | `/api/applications` |
+| GET    | `/api/applications` |
 
 ---
 
-## Resume
+## Resume Analysis
 
-* POST `/api/resume/upload`
-* GET `/api/resume/analysis`
-* GET `/api/resume/analysis/:id`
-* DELETE `/api/resume/:id`
+| Method | Endpoint                   |
+| ------ | -------------------------- |
+| POST   | `/api/resume/upload`       |
+| GET    | `/api/resume/analysis`     |
+| GET    | `/api/resume/analysis/:id` |
+| DELETE | `/api/resume/:id`          |
 
 ---
 
-# 🤖 AI Workflow
+# 🤖 AI Resume Analysis Workflow
 
 ```text
 Candidate Uploads Resume
@@ -270,19 +324,19 @@ Candidate Uploads Resume
 Resume Stored in PostgreSQL
             │
             ▼
-Linked to Candidate Application
+Linked with Candidate Application
 ```
 
 ---
 
 # 🔑 Environment Variables
 
-| Variable       | Description             |
-| -------------- | ----------------------- |
-| PORT           | Backend Port            |
-| DATABASE_URL   | PostgreSQL Database URL |
-| JWT_SECRET     | JWT Secret              |
-| GEMINI_API_KEY | Google Gemini API Key   |
+| Variable         | Description                       |
+| ---------------- | --------------------------------- |
+| `PORT`           | Backend Port                      |
+| `DATABASE_URL`   | PostgreSQL Database URL           |
+| `JWT_SECRET`     | Secret Key for JWT Authentication |
+| `GEMINI_API_KEY` | Google Gemini API Key             |
 
 ---
 
@@ -290,37 +344,44 @@ Linked to Candidate Application
 
 The project is deployed using:
 
-* 🌐 Render
-* 🐘 PostgreSQL
+* 🌐 Render Web Service
+* 🐘 PostgreSQL Database
 * 🤖 Google Gemini API
+* 📂 Express Static Hosting
 
 ---
 
-# 🌟 Future Improvements
+# 🗺 Future Scope
 
 * AI Candidate Ranking
+* Resume Keyword Matching
+* Recruiter Analytics Dashboard
 * Email Notifications
 * Interview Scheduling
-* Recruiter Analytics
-* Resume Keyword Matching
-* Cloud Storage Integration
-* Live Interview Dashboard
+* Cloud File Storage
+* Real-Time Application Tracking
 
 ---
 
 # 👨‍💻 Team
 
-**Team aiRecruitment**
+### Team aiRecruitment
 
 * Chirag Arora
 * Team Members
 
 ---
 
+# 📄 License
+
+This project was developed for **educational and hackathon purposes**.
+
+---
+
 <div align="center">
 
-### ⭐ If you found this project useful, consider giving it a star!
+## ⭐ If you found this project useful, don't forget to give it a Star!
 
-**Made with ❤️ for Hackathons & Smart Recruitment**
+### Built with ❤️ using Node.js, Express, PostgreSQL, Prisma & Google Gemini
 
 </div>
