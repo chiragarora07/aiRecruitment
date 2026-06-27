@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Page Not Found | HireFlow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% -5%, rgba(59,130,246,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 85%, rgba(6,182,212,0.07) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .bg-layer::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+    }
+
+    /* Floating particles */
+    .particles { position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden; }
+    .particle {
+      position:absolute;border-radius:50%;
+      background:rgba(59,130,246,0.25);
+      animation: drift linear infinite;
+    }
+    @keyframes drift {
+      0%   { transform:translateY(100vh) scale(0); opacity:0; }
+      10%  { opacity:1; }
+      90%  { opacity:1; }
+      100% { transform:translateY(-100px) scale(1); opacity:0; }
+    }
+
+    /* Nav */
+    nav {
+      position: relative; z-index: 10;
+      padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,15,30,0.6); backdrop-filter: blur(20px);
+    }
+    .nav-logo {
+      display:flex;align-items:center;gap:9px;
+      font-family:var(--ff-head);font-size:1.2rem;font-weight:700;color:#fff;text-decoration:none;
+    }
+    .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center; }
+    .nav-links { display:flex;gap:8px; }
+    .nav-link { color:var(--muted);text-decoration:none;font-size:.88rem;font-weight:500;padding:7px 14px;border-radius:8px;transition:all var(--transition); }
+    .nav-link:hover { color:var(--text);background:rgba(255,255,255,.05); }
+
+    /* Main content */
+    .main {
+      flex: 1; position:relative;z-index:1;
+      display:flex;align-items:center;justify-content:center;
+      padding: 60px 24px;
+    }
+
+    .error-container {
+      max-width: 680px; width: 100%;
+      text-align: center;
+    }
+
+    /* 404 Big number */
+    .error-number {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .error-num-text {
+      font-family: var(--ff-head);
+      font-size: clamp(6rem, 18vw, 12rem);
+      font-weight: 700;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--cyan) 50%, rgba(59,130,246,0.4) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.04em;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { filter: brightness(1); }
+      50%      { filter: brightness(1.15); }
+    }
+    .error-num-glow {
+      position:absolute;inset:0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(59,130,246,0.15) 0%, transparent 70%);
+      filter:blur(20px);
+      pointer-events:none;
+    }
+
+    /* Icon */
+    .error-icon-wrap {
+      width:80px;height:80px;border-radius:50%;
+      background:var(--surface);border:2px solid rgba(59,130,246,0.3);
+      display:inline-flex;align-items:center;justify-content:center;
+      margin-bottom:24px;
+      box-shadow:0 0 40px rgba(59,130,246,0.2);
+      animation:pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 40px rgba(59,130,246,0.2); }
+      50%      { box-shadow:0 0 60px rgba(59,130,246,0.4); }
+    }
+    .error-icon-wrap i { font-size:2rem;color:var(--blue); }
+
+    .error-title {
+      font-family:var(--ff-head);font-size:clamp(1.5rem,4vw,2rem);
+      font-weight:700;margin-bottom:12px;
+    }
+    .error-desc {
+      color:var(--muted);font-size:1rem;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;
+    }
+
+    /* Actions */
+    .error-actions {
+      display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+      margin-bottom:48px;
+    }
+
+    .btn {
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 24px;border-radius:var(--radius);
+      font-family:var(--ff-body);font-size:.92rem;font-weight:600;
+      cursor:pointer;border:none;text-decoration:none;
+      transition:all var(--transition);white-space:nowrap;
+    }
+    .btn-primary { background:var(--blue);color:#fff;box-shadow:0 0 24px rgba(59,130,246,.35); }
+    .btn-primary:hover { background:var(--blue-dark);box-shadow:0 0 36px rgba(59,130,246,.55);transform:translateY(-2px); }
+    .btn-ghost { background:transparent;color:var(--text);border:1px solid var(--border); }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04);transform:translateY(-2px); }
+
+    /* Quick links */
+    .quick-links-label {
+      font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--muted2);margin-bottom:16px;
+    }
+    .quick-links {
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+    }
+    .quick-link {
+      display:flex;flex-direction:column;align-items:center;gap:10px;
+      padding:20px 16px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);text-decoration:none;
+      transition:all var(--transition);
+      position:relative;overflow:hidden;
+    }
+    .quick-link::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:2px;
+      background:linear-gradient(90deg,var(--blue),var(--cyan));
+      opacity:0;transition:opacity var(--transition);
+    }
+    .quick-link:hover { border-color:rgba(59,130,246,.3);transform:translateY(-4px); }
+    .quick-link:hover::before { opacity:1; }
+    .quick-link-icon {
+      width:42px;height:42px;border-radius:10px;
+      background:var(--blue-glow);border:1px solid rgba(59,130,246,.2);
+      display:flex;align-items:center;justify-content:center;
+    }
+    .quick-link-icon i { color:var(--blue);font-size:.95rem; }
+    .quick-link-label { font-size:.82rem;font-weight:600;color:var(--text); }
+    .quick-link-sub   { font-size:.72rem;color:var(--muted); }
+
+    /* Glitch effect on hover */
+    .error-num-text:hover {
+      animation: glitch 0.4s steps(2,end) 1;
+    }
+    @keyframes glitch {
+      0%   { text-shadow: 2px 0 var(--cyan),  -2px 0 var(--blue); }
+      25%  { text-shadow: -2px 0 var(--cyan),  2px 0 var(--blue); }
+      50%  { text-shadow: 2px 0 #EF4444,  -2px 0 var(--cyan);  }
+      75%  { text-shadow: -2px 0 #EF4444,  2px 0 var(--blue); }
+      100% { text-shadow: none; }
+    }
+
+    /* Search bar */
+    .search-wrap {
+      max-width:400px;margin:0 auto 36px;position:relative;
+    }
+    .search-wrap input {
+      width:100%;padding:12px 14px 12px 42px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:100px;color:var(--text);
+      font-family:var(--ff-body);font-size:.9rem;outline:none;
+      transition:all var(--transition);
+    }
+    .search-wrap input:focus { border-color:rgba(59,130,246,.5);box-shadow:0 0 0 3px rgba(59,130,246,.1); }
+    .search-wrap i { position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted2); }
+    .search-wrap button {
+      position:absolute;right:8px;top:50%;transform:translateY(-50%);
+      background:var(--blue);border:none;color:#fff;border-radius:100px;
+      padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all var(--transition);
+    }
+    .search-wrap button:hover { background:var(--blue-dark); }
+
+    /* Footer strip */
+    footer {
+      position:relative;z-index:1;
+      padding:20px 40px;
+      border-top:1px solid var(--border);
+      text-align:center;font-size:.8rem;color:var(--muted2);
+    }
+    footer a { color:var(--muted);text-decoration:none; }
+    footer a:hover { color:var(--blue); }
+
+    /* Countdown */
+    .countdown {
+      font-size:.82rem;color:var(--muted2);margin-bottom:20px;
+    }
+    .countdown span { color:var(--blue);font-weight:600; }
+
+    @media(max-width:640px) {
+      nav { padding:16px 20px; }
+      .quick-links { grid-template-columns:1fr 1fr; }
+      .nav-links { display:none; }
+      footer { padding:16px 20px; }
+    }
+    @media(max-width:400px) {
+      .quick-links { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg-layer"></div>
+<div class="particles" id="particles"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    HireFlow
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="admindashboard.html" class="nav-link">Dashboard</a>
+    <a href="organisations.html" class="nav-link">Organisations</a>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+  <div class="error-container">
+
+    <!-- 404 Number -->
+    <div class="error-number">
+      <div class="error-num-glow"></div>
+      <div class="error-num-text" title="Hover me!">404</div>
+    </div>
+
+    <!-- Icon -->
+    <div>
+      <div class="error-icon-wrap">
+        <i class="fa-solid fa-map-location-dot"></i>
+      </div>
+    </div>
+
+    <h1 class="error-title">Page Not Found</h1>
+    <p class="error-desc">
+      Looks like this page took a wrong turn during the interview process. The URL you're looking for doesn't exist — or has been moved to another drive.
+    </p>
+
+    <!-- Search -->
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search for a page…" />
+      <button onclick="handleSearch()">Go</button>
+    </div>
+
+    <!-- Countdown -->
+    <div class="countdown">Redirecting to home in <span id="countdownNum">10</span> seconds…</div>
+
+    <!-- Actions -->
+    <div class="error-actions">
+      <a href="index.html" class="btn btn-primary"><i class="fa-solid fa-house"></i> Go Home</a>
+      <button class="btn btn-ghost" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Go Back</button>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="quick-links-label">Or try one of these</div>
+    <div class="quick-links">
+      <a href="admindashboard.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-gauge"></i></div>
+        <div class="quick-link-label">Dashboard</div>
+        <div class="quick-link-sub">Admin overview</div>
+      </a>
+      <a href="organisations.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-building"></i></div>
+        <div class="quick-link-label">Organisations</div>
+        <div class="quick-link-sub">Browse all orgs</div>
+      </a>
+      <a href="login.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+        <div class="quick-link-label">Sign In</div>
+        <div class="quick-link-sub">Access your account</div>
+      </a>
+      <a href="applicantdashboard.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-user"></i></div>
+        <div class="quick-link-label">Candidate Portal</div>
+        <div class="quick-link-sub">Your applications</div>
+      </a>
+      <a href="managedrives.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-bullhorn"></i></div>
+        <div class="quick-link-label">Drives</div>
+        <div class="quick-link-sub">Active recruitment</div>
+      </a>
+      <a href="settings.html" class="quick-link">
+        <div class="quick-link-icon"><i class="fa-solid fa-gear"></i></div>
+        <div class="quick-link-label">Settings</div>
+        <div class="quick-link-sub">Account & preferences</div>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>© 2026 HireFlow &nbsp;·&nbsp; <a href="index.html">Home</a> &nbsp;·&nbsp; <a href="#">Support</a> &nbsp;·&nbsp; <a href="#">Privacy</a></p>
+</footer>
+
+<script>
+  // Particles
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 8 + 4;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      animation-duration:${8 + Math.random()*12}s;
+      animation-delay:${Math.random()*10}s;
+      opacity:${0.1 + Math.random()*0.3};
+    `;
+    container.appendChild(p);
+  }
+
+  // Countdown redirect
+  let count = 10;
+  const countEl = document.getElementById('countdownNum');
+  const timer = setInterval(() => {
+    count--;
+    countEl.textContent = count;
+    if (count <= 0) { clearInterval(timer); window.location.href = 'index.html'; }
+  }, 1000);
+
+  // Cancel redirect on interaction
+  ['click','keydown','mousemove'].forEach(e => {
+    document.addEventListener(e, () => {
+      clearInterval(timer);
+      const cd = document.querySelector('.countdown');
+      if (cd) cd.textContent = 'Auto-redirect cancelled.';
+    }, { once: true });
+  });
+
+  // Search
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
+
+  const pageMap = {
+    'dashboard': 'admindashboard.html',
+    'admin': 'admindashboard.html',
+    'candidate': 'applicantdashboard.html',
+    'applicant': 'applicantdashboard.html',
+    'interviewer': 'interviewerdashboard.html',
+    'login': 'login.html',
+    'register': 'login.html',
+    'settings': 'settings.html',
+    'profile': 'profile.html',
+    'drives': 'managedrives.html',
+    'organisations': 'organisations.html',
+    'notifications': 'notifications.html',
+    'resume': 'resumeviewer.html',
+    'feedback': 'interviewfeedback.html',
+    'analytics': 'analytics.html',
+    'results': 'results.html',
+  };
+
+  function handleSearch() {
+    const q = searchInput.value.toLowerCase().trim();
+    for (const [key, url] of Object.entries(pageMap)) {
+      if (q.includes(key)) { window.location.href = url; return; }
+    }
+    searchInput.style.borderColor = 'rgba(239,68,68,.5)';
+    searchInput.placeholder = 'No match found — try "dashboard" or "login"';
+    searchInput.value = '';
+    setTimeout(() => { searchInput.style.borderColor=''; searchInput.placeholder='Search for a page…'; }, 2000);
+  }
+</script>
+</body>
+</html>

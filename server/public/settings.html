@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — HireFlow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --green:     #22C55E;
+      --yellow:    #F59E0B;
+      --red:       #EF4444;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background:var(--bg);color:var(--text);font-family:var(--ff-body);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh; }
+
+    .layout { display:flex;min-height:100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width:240px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+      display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;transition:transform var(--transition);
+    }
+    .sidebar-logo { display:flex;align-items:center;gap:9px;padding:22px 20px 18px;border-bottom:1px solid var(--border);font-family:var(--ff-head);font-size:1.1rem;font-weight:700;color:#fff;text-decoration:none; }
+    .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .sidebar-nav { flex:1;padding:16px 12px;overflow-y:auto; }
+    .nav-section-label { font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);padding:0 8px;margin:16px 0 6px; }
+    .nav-item { display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius);color:var(--muted);font-size:.88rem;font-weight:500;text-decoration:none;cursor:pointer;transition:all var(--transition);margin-bottom:2px; }
+    .nav-item:hover { background:rgba(255,255,255,.05);color:var(--text); }
+    .nav-item.active { background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.25); }
+    .nav-item i { width:16px;text-align:center;font-size:.85rem; }
+    .sidebar-footer { padding:16px 12px;border-top:1px solid var(--border); }
+    .sidebar-user { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);background:rgba(255,255,255,.03);cursor:pointer; }
+    .user-avatar { width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0; }
+    .user-name { font-size:.85rem;font-weight:600; }
+    .user-role { font-size:.72rem;color:var(--muted); }
+
+    /* Main */
+    .main { margin-left:240px;flex:1; }
+    .topbar { position:sticky;top:0;z-index:40;background:rgba(10,15,30,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between; }
+    .topbar-left { display:flex;align-items:center;gap:14px; }
+    .page-title { font-family:var(--ff-head);font-size:1rem;font-weight:600; }
+    .hamburger-btn { display:none;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:6px; }
+
+    /* Settings Layout */
+    .settings-wrap { display:grid;grid-template-columns:220px 1fr;gap:20px;padding:28px;max-width:1060px; }
+
+    /* Settings Nav */
+    .settings-nav {
+      position:sticky; top:80px;
+      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;
+      height:fit-content;
+    }
+    .settings-nav-item {
+      display:flex;align-items:center;gap:10px;
+      padding:10px 14px;border-radius:var(--radius);
+      color:var(--muted);font-size:.88rem;font-weight:500;
+      cursor:pointer;transition:all var(--transition);margin-bottom:2px;
+    }
+    .settings-nav-item:hover { background:rgba(255,255,255,.05);color:var(--text); }
+    .settings-nav-item.active { background:var(--blue-glow);color:var(--blue); }
+    .settings-nav-item i { width:16px;text-align:center;font-size:.85rem; }
+    .settings-nav-item.danger { color:var(--red); }
+    .settings-nav-item.danger:hover { background:rgba(239,68,68,.1); }
+    .nav-divider { height:1px;background:var(--border);margin:8px 0; }
+
+    /* Panels */
+    .settings-panel { display:none; }
+    .settings-panel.active { display:block; }
+
+    .card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px; }
+    .card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border); }
+    .card-title { font-family:var(--ff-head);font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px; }
+    .card-title i { color:var(--blue);font-size:.9rem; }
+
+    /* Avatar editor */
+    .avatar-editor { display:flex;align-items:center;gap:20px;margin-bottom:24px; }
+    .avatar-large {
+      width:80px;height:80px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--cyan));
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--ff-head);font-size:1.6rem;font-weight:700;flex-shrink:0;
+      border:3px solid rgba(59,130,246,.3);
+    }
+    .avatar-actions { display:flex;flex-direction:column;gap:8px; }
+    .avatar-actions p { font-size:.78rem;color:var(--muted); }
+
+    /* Form */
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px; }
+    .form-group { margin-bottom:16px; }
+    .form-label { display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em; }
+    .form-input,.form-select,.form-textarea {
+      width:100%;padding:10px 14px;
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);color:var(--text);
+      font-family:var(--ff-body);font-size:.88rem;
+      transition:all var(--transition);outline:none;
+    }
+    .form-input:focus,.form-select:focus,.form-textarea:focus { border-color:rgba(59,130,246,.5);box-shadow:0 0 0 3px rgba(59,130,246,.1); }
+    .form-select option { background:var(--surface2); }
+    .form-textarea { min-height:80px;resize:vertical; }
+    .input-with-icon { position:relative; }
+    .input-with-icon .form-input { padding-left:38px; }
+    .input-with-icon i { position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:.85rem; }
+    .input-helper { font-size:.75rem;color:var(--muted2);margin-top:5px; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 0;border-bottom:1px solid var(--border);
+    }
+    .toggle-row:last-child { border-bottom:none;padding-bottom:0; }
+    .toggle-info {}
+    .toggle-title { font-size:.88rem;font-weight:600; }
+    .toggle-desc { font-size:.78rem;color:var(--muted);margin-top:2px; }
+    .toggle-switch {
+      position:relative;width:44px;height:24px;flex-shrink:0;
+    }
+    .toggle-switch input { opacity:0;width:0;height:0;position:absolute; }
+    .toggle-slider {
+      position:absolute;inset:0;background:rgba(255,255,255,.1);border:1px solid var(--border);
+      border-radius:100px;cursor:pointer;transition:.3s;
+    }
+    .toggle-slider::before {
+      content:'';position:absolute;width:16px;height:16px;border-radius:50%;
+      background:#fff;left:3px;top:3px;transition:.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background:var(--blue);border-color:var(--blue); }
+    .toggle-switch input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+    /* Theme grid */
+    .theme-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px; }
+    .theme-opt {
+      border:2px solid var(--border);border-radius:var(--radius);
+      padding:14px;cursor:pointer;transition:all var(--transition);text-align:center;
+    }
+    .theme-opt:hover { border-color:rgba(255,255,255,.2); }
+    .theme-opt.selected { border-color:var(--blue);background:var(--blue-glow); }
+    .theme-preview {
+      width:100%;height:42px;border-radius:8px;margin-bottom:8px;
+      display:flex;align-items:center;justify-content:center;gap:4px;overflow:hidden;
+    }
+    .tp-bar { height:8px;border-radius:2px; }
+    .theme-name { font-size:.78rem;font-weight:600; }
+
+    /* Accent picker */
+    .accent-grid { display:flex;gap:10px;flex-wrap:wrap; }
+    .accent-opt {
+      width:32px;height:32px;border-radius:50%;cursor:pointer;
+      border:2px solid transparent;transition:all var(--transition);
+    }
+    .accent-opt:hover { transform:scale(1.15); }
+    .accent-opt.selected { border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.2); }
+
+    /* Password strength */
+    .strength-bar-wrap { margin-top:8px; }
+    .strength-bar { height:4px;border-radius:100px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:4px; }
+    .strength-fill { height:100%;border-radius:100px;width:0;transition:width .4s ease,background .3s; }
+    .strength-label { font-size:.72rem;color:var(--muted2); }
+
+    /* Danger zone */
+    .danger-zone { border-color:rgba(239,68,68,.3) !important; }
+    .danger-zone .card-title i { color:var(--red); }
+    .danger-item { display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border); }
+    .danger-item:last-child { border-bottom:none;padding-bottom:0; }
+    .danger-item-info {}
+    .danger-item-title { font-size:.9rem;font-weight:600; }
+    .danger-item-desc { font-size:.78rem;color:var(--muted);margin-top:2px; }
+
+    /* Buttons */
+    .btn { display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius);font-family:var(--ff-body);font-size:.88rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all var(--transition);white-space:nowrap; }
+    .btn-primary { background:var(--blue);color:#fff;box-shadow:0 0 24px rgba(59,130,246,.35); }
+    .btn-primary:hover { background:var(--blue-dark);box-shadow:0 0 36px rgba(59,130,246,.55);transform:translateY(-2px); }
+    .btn-ghost { background:transparent;color:var(--text);border:1px solid var(--border); }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04); }
+    .btn-danger { background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3); }
+    .btn-danger:hover { background:rgba(239,68,68,.22);transform:translateY(-2px); }
+    .btn-sm { padding:7px 14px;font-size:.8rem; }
+
+    .action-row { display:flex;align-items:center;gap:12px;padding-top:18px;border-top:1px solid var(--border); }
+    .action-row.right { justify-content:flex-end; }
+
+    /* Toast */
+    .toast-container { position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:10px; }
+    .toast { display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:280px;animation:slideIn .3s ease; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none} }
+    .toast.success { border-color:rgba(34,197,94,.4); }
+    .toast.error   { border-color:rgba(239,68,68,.4); }
+    .toast-icon.success { color:var(--green); }
+    .toast-icon.error   { color:var(--red); }
+    .toast-msg { flex:1;font-size:.88rem; }
+    .toast-close { background:none;border:none;color:var(--muted);cursor:pointer; }
+
+    /* Modal */
+    .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center; }
+    .modal-backdrop.open { display:flex; }
+    .modal { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;max-width:440px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:popIn .25s ease; }
+    @keyframes popIn { from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none} }
+    .modal h3 { font-family:var(--ff-head);font-size:1.1rem;margin-bottom:10px; }
+    .modal p { color:var(--muted);font-size:.88rem;margin-bottom:24px; }
+    .modal-actions { display:flex;gap:12px;justify-content:flex-end; }
+
+    @media(max-width:900px) { .settings-wrap { grid-template-columns:1fr; } .settings-nav { position:static;display:flex;flex-wrap:wrap;gap:4px;padding:8px; } .settings-nav-item { padding:8px 12px;font-size:.8rem; } .nav-divider{display:none;} }
+    @media(max-width:768px) { .sidebar{transform:translateX(-100%);} .sidebar.open{transform:none;} .main{margin-left:0;} .hamburger-btn{display:block;} .settings-wrap{padding:16px;} .form-row{grid-template-columns:1fr;} .theme-grid{grid-template-columns:1fr 1fr;} }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="#" class="sidebar-logo">
+      <div class="logo-icon"><svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+      HireFlow
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="admindashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a class="nav-item" href="managedrives.html"><i class="fa-solid fa-bullhorn"></i> Manage Drives</a>
+      <a class="nav-item" href="managecandidates.html"><i class="fa-solid fa-users"></i> Candidates</a>
+      <a class="nav-item" href="analytics.html"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a class="nav-item active" href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">AD</div>
+        <div><div class="user-name">Admin User</div><div class="user-role">Administrator</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn"><i class="fa-solid fa-bars"></i></button>
+        <div class="page-title"><i class="fa-solid fa-gear" style="color:var(--blue);margin-right:6px;"></i>Settings</div>
+      </div>
+      <div style="font-size:.8rem;color:var(--muted);">Last saved: Just now</div>
+    </div>
+
+    <div class="settings-wrap">
+
+      <!-- Settings Nav -->
+      <div class="settings-nav">
+        <div class="settings-nav-item active" onclick="switchPanel('profile',this)"><i class="fa-solid fa-user"></i> Profile</div>
+        <div class="settings-nav-item" onclick="switchPanel('password',this)"><i class="fa-solid fa-lock"></i> Password</div>
+        <div class="settings-nav-item" onclick="switchPanel('theme',this)"><i class="fa-solid fa-palette"></i> Theme</div>
+        <div class="settings-nav-item" onclick="switchPanel('notifications',this)"><i class="fa-solid fa-bell"></i> Notifications</div>
+        <div class="nav-divider"></div>
+        <div class="settings-nav-item danger" onclick="openLogoutModal()"><i class="fa-solid fa-right-from-bracket"></i> Logout</div>
+      </div>
+
+      <!-- Panels -->
+      <div>
+
+        <!-- Profile Panel -->
+        <div class="settings-panel active" id="panel-profile">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-user-pen"></i> Profile Information</div>
+            </div>
+            <div class="avatar-editor">
+              <div class="avatar-large" id="avatarDisplay">AD</div>
+              <div class="avatar-actions">
+                <button class="btn btn-ghost btn-sm" onclick="showToast('File picker would open here.','success')"><i class="fa-solid fa-upload"></i> Upload Photo</button>
+                <button class="btn btn-ghost btn-sm" onclick="showToast('Avatar removed.','success')"><i class="fa-solid fa-trash"></i> Remove</button>
+                <p>JPG, PNG up to 2MB</p>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-input" value="Aditya" id="firstName" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-input" value="Sharma" id="lastName" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" class="form-input" value="aditya.sharma@hireflow.app" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-phone"></i>
+                  <input type="tel" class="form-input" value="+91 99887 76655" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role</label>
+                <select class="form-select">
+                  <option selected>Administrator</option>
+                  <option>Interviewer</option>
+                  <option>Candidate</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Organisation</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-building"></i>
+                <input type="text" class="form-input" value="TechVenture Solutions" />
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Bio</label>
+              <textarea class="form-textarea" placeholder="Tell us about yourself…">Campus recruitment lead with 5+ years of experience managing large-scale hiring drives for technical roles.</textarea>
+            </div>
+            <div class="action-row right">
+              <button class="btn btn-ghost" onclick="showToast('Changes discarded.','error')">Discard</button>
+              <button class="btn btn-primary" onclick="saveProfile()"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Password Panel -->
+        <div class="settings-panel" id="panel-password">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-lock"></i> Change Password</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" class="form-input" id="currentPass" placeholder="Enter current password" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" class="form-input" id="newPass" placeholder="Min 8 characters" oninput="checkStrength(this.value)" />
+              </div>
+              <div class="strength-bar-wrap">
+                <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                <div class="strength-label" id="strengthLabel">Enter a password to check strength</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-shield-halved"></i>
+                <input type="password" class="form-input" id="confirmPass" placeholder="Repeat new password" />
+              </div>
+            </div>
+            <div class="card" style="background:var(--surface2);border-color:rgba(59,130,246,.2);padding:16px;margin-bottom:0;">
+              <div style="font-size:.82rem;font-weight:600;margin-bottom:8px;color:var(--blue);"><i class="fa-solid fa-circle-info"></i> Password Requirements</div>
+              <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+                <li id="req1" style="font-size:.78rem;color:var(--muted2);"><i class="fa-solid fa-circle fa-xs" style="margin-right:6px;"></i>At least 8 characters</li>
+                <li id="req2" style="font-size:.78rem;color:var(--muted2);"><i class="fa-solid fa-circle fa-xs" style="margin-right:6px;"></i>Uppercase and lowercase letters</li>
+                <li id="req3" style="font-size:.78rem;color:var(--muted2);"><i class="fa-solid fa-circle fa-xs" style="margin-right:6px;"></i>At least one number</li>
+                <li id="req4" style="font-size:.78rem;color:var(--muted2);"><i class="fa-solid fa-circle fa-xs" style="margin-right:6px;"></i>At least one special character</li>
+              </ul>
+            </div>
+            <div class="action-row right" style="margin-top:18px;">
+              <button class="btn btn-primary" onclick="changePassword()"><i class="fa-solid fa-lock"></i> Update Password</button>
+            </div>
+          </div>
+
+          <!-- 2FA -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Two-Factor Authentication</div>
+              <span style="font-size:.72rem;padding:3px 10px;border-radius:100px;background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3);font-weight:600;">Disabled</span>
+            </div>
+            <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px;">Add an extra layer of security by enabling 2FA. You'll be required to enter a code from your authenticator app on each login.</p>
+            <button class="btn btn-ghost" onclick="showToast('2FA setup flow would launch here.','success')"><i class="fa-solid fa-shield-halved"></i> Enable 2FA</button>
+          </div>
+        </div>
+
+        <!-- Theme Panel -->
+        <div class="settings-panel" id="panel-theme">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-moon"></i> Appearance</div>
+            </div>
+            <div class="form-label" style="margin-bottom:12px;">Color Mode</div>
+            <div class="theme-grid" id="themeGrid">
+              <div class="theme-opt selected" data-theme="dark" onclick="selectTheme(this,'dark')">
+                <div class="theme-preview" style="background:#0A0F1E;">
+                  <div class="tp-bar" style="width:40%;background:#3B82F6;"></div>
+                  <div class="tp-bar" style="width:25%;background:#1a2235;border:1px solid rgba(255,255,255,.1);"></div>
+                </div>
+                <div class="theme-name">Dark (Default)</div>
+              </div>
+              <div class="theme-opt" data-theme="darker" onclick="selectTheme(this,'darker')">
+                <div class="theme-preview" style="background:#050810;">
+                  <div class="tp-bar" style="width:40%;background:#6366F1;"></div>
+                  <div class="tp-bar" style="width:25%;background:#0f1526;border:1px solid rgba(255,255,255,.08);"></div>
+                </div>
+                <div class="theme-name">Midnight</div>
+              </div>
+              <div class="theme-opt" data-theme="light" onclick="selectTheme(this,'light')">
+                <div class="theme-preview" style="background:#F8FAFC;">
+                  <div class="tp-bar" style="width:40%;background:#3B82F6;"></div>
+                  <div class="tp-bar" style="width:25%;background:#E2E8F0;border:1px solid #CBD5E1;"></div>
+                </div>
+                <div class="theme-name">Light</div>
+              </div>
+            </div>
+
+            <div class="form-label" style="margin-bottom:12px;margin-top:8px;">Accent Color</div>
+            <div class="accent-grid" id="accentGrid">
+              <div class="accent-opt selected" style="background:#3B82F6;" data-color="#3B82F6" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#8B5CF6;" data-color="#8B5CF6" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#06B6D4;" data-color="#06B6D4" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#22C55E;" data-color="#22C55E" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#F59E0B;" data-color="#F59E0B" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#EF4444;" data-color="#EF4444" onclick="selectAccent(this)"></div>
+              <div class="accent-opt" style="background:#EC4899;" data-color="#EC4899" onclick="selectAccent(this)"></div>
+            </div>
+
+            <div class="form-group" style="margin-top:20px;margin-bottom:0;">
+              <label class="form-label">Font Size</label>
+              <select class="form-select">
+                <option>Small (14px)</option>
+                <option selected>Default (16px)</option>
+                <option>Large (18px)</option>
+              </select>
+            </div>
+            <div class="action-row right" style="margin-top:18px;">
+              <button class="btn btn-ghost" onclick="showToast('Reset to defaults.','success')">Reset to Default</button>
+              <button class="btn btn-primary" onclick="showToast('Theme saved!','success')"><i class="fa-solid fa-floppy-disk"></i> Save Theme</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications Panel -->
+        <div class="settings-panel" id="panel-notifications">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-bell"></i> Email Notifications</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">New Application</div><div class="toggle-desc">Notify when a candidate applies to a drive</div></div>
+              <label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Interview Scheduled</div><div class="toggle-desc">Receive reminder before each scheduled interview</div></div>
+              <label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Feedback Submitted</div><div class="toggle-desc">Alert when an interviewer submits a scorecard</div></div>
+              <label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Drive Closing</div><div class="toggle-desc">Notify 24 hours before a drive closes</div></div>
+              <label class="toggle-switch"><input type="checkbox" /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Result Dispatched</div><div class="toggle-desc">Get notified when results are sent to candidates</div></div>
+              <label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-mobile-screen"></i> In-App Notifications</div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Browser Notifications</div><div class="toggle-desc">Show desktop push notifications</div></div>
+              <label class="toggle-switch"><input type="checkbox" /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Sound Alerts</div><div class="toggle-desc">Play sound for important events</div></div>
+              <label class="toggle-switch"><input type="checkbox" /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-title">Weekly Summary</div><div class="toggle-desc">Receive a weekly digest of all activity</div></div>
+              <label class="toggle-switch"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+            </div>
+            <div class="action-row right" style="margin-top:4px;">
+              <button class="btn btn-primary" onclick="showToast('Notification preferences saved!','success')"><i class="fa-solid fa-floppy-disk"></i> Save Preferences</button>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="card danger-zone">
+            <div class="card-header">
+              <div class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div>
+            </div>
+            <div class="danger-item">
+              <div class="danger-item-info">
+                <div class="danger-item-title">Export All Data</div>
+                <div class="danger-item-desc">Download a full export of your account data in JSON format</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="showToast('Preparing your data export…','success')"><i class="fa-solid fa-download"></i> Export</button>
+            </div>
+            <div class="danger-item">
+              <div class="danger-item-info">
+                <div class="danger-item-title">Deactivate Account</div>
+                <div class="danger-item-desc">Temporarily disable your account — data will be retained</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="showToast('Contact admin to deactivate.','error')"><i class="fa-solid fa-power-off"></i> Deactivate</button>
+            </div>
+            <div class="danger-item">
+              <div class="danger-item-info">
+                <div class="danger-item-title">Delete Account</div>
+                <div class="danger-item-desc">Permanently delete your account and all associated data. This cannot be undone.</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="openDeleteModal()"><i class="fa-solid fa-trash"></i> Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Modal -->
+<div class="modal-backdrop" id="logoutModal">
+  <div class="modal">
+    <h3><i class="fa-solid fa-right-from-bracket" style="color:var(--blue);margin-right:8px;"></i>Sign Out</h3>
+    <p>Are you sure you want to sign out? You'll need to log in again to access HireFlow.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal">
+    <h3 style="color:var(--red);"><i class="fa-solid fa-triangle-exclamation" style="margin-right:8px;"></i>Delete Account</h3>
+    <p>This action is <strong style="color:var(--text);">irreversible</strong>. All your data, drives, and history will be permanently deleted. Type <strong style="color:var(--text);">DELETE</strong> to confirm.</p>
+    <input type="text" class="form-input" id="deleteConfirmInput" placeholder='Type "DELETE" to confirm' style="margin-bottom:20px;" />
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModals()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()"><i class="fa-solid fa-trash"></i> Delete Forever</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  function switchPanel(id, el) {
+    document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    el.classList.add('active');
+  }
+
+  function saveProfile() {
+    const fn = document.getElementById('firstName').value;
+    const ln = document.getElementById('lastName').value;
+    const initials = (fn[0]||'A') + (ln[0]||'D');
+    document.getElementById('avatarDisplay').textContent = initials.toUpperCase();
+    showToast('Profile saved successfully!', 'success');
+  }
+
+  function checkStrength(val) {
+    const fill = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    const reqs = [
+      { id:'req1', test: val.length >= 8 },
+      { id:'req2', test: /[a-z]/.test(val) && /[A-Z]/.test(val) },
+      { id:'req3', test: /\d/.test(val) },
+      { id:'req4', test: /[^a-zA-Z0-9]/.test(val) },
+    ];
+    let passed = reqs.filter(r => r.test).length;
+    reqs.forEach(r => {
+      const el = document.getElementById(r.id);
+      el.style.color = r.test ? 'var(--green)' : 'var(--muted2)';
+      el.querySelector('i').style.color = r.test ? 'var(--green)' : '';
+    });
+    const map = { 0:['0%','var(--muted2)',''], 1:['25%','var(--red)','Weak'], 2:['50%','var(--yellow)','Fair'], 3:['75%','var(--blue)','Good'], 4:['100%','var(--green)','Strong'] };
+    const [w,c,t] = map[passed];
+    fill.style.width = w; fill.style.background = c; label.textContent = t ? `Strength: ${t}` : 'Enter a password';
+    label.style.color = c;
+  }
+
+  function changePassword() {
+    const cur = document.getElementById('currentPass').value;
+    const nw  = document.getElementById('newPass').value;
+    const cf  = document.getElementById('confirmPass').value;
+    if (!cur) { showToast('Please enter your current password.','error'); return; }
+    if (nw.length < 8) { showToast('New password must be at least 8 characters.','error'); return; }
+    if (nw !== cf) { showToast('Passwords do not match.','error'); return; }
+    showToast('Password updated successfully!','success');
+    document.getElementById('currentPass').value='';
+    document.getElementById('newPass').value='';
+    document.getElementById('confirmPass').value='';
+    checkStrength('');
+  }
+
+  function selectTheme(el, theme) {
+    document.querySelectorAll('.theme-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    showToast(`Theme set to "${el.querySelector('.theme-name').textContent}"`, 'success');
+  }
+
+  function selectAccent(el) {
+    document.querySelectorAll('.accent-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    const c = el.dataset.color;
+    document.documentElement.style.setProperty('--blue', c);
+    showToast('Accent color updated!','success');
+  }
+
+  function openLogoutModal() { document.getElementById('logoutModal').classList.add('open'); }
+  function openDeleteModal() { document.getElementById('deleteModal').classList.add('open'); }
+  function closeModals() { document.querySelectorAll('.modal-backdrop').forEach(m => m.classList.remove('open')); }
+
+  function logout() { closeModals(); showToast('Signing you out…','success'); setTimeout(()=>{ window.location.href='login.html'; },1200); }
+
+  function confirmDelete() {
+    const val = document.getElementById('deleteConfirmInput').value;
+    if (val !== 'DELETE') { showToast('Please type DELETE to confirm.','error'); return; }
+    closeModals();
+    showToast('Account deletion initiated.','error');
+  }
+
+  function showToast(msg, type='success') {
+    const tc = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<i class="toast-icon ${type} fa-solid ${type==='success'?'fa-circle-check':'fa-circle-exclamation'}"></i><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>`;
+    tc.appendChild(t);
+    setTimeout(()=>t.remove(),4000);
+  }
+
+  document.getElementById('hamburgerBtn').addEventListener('click', ()=> { document.getElementById('sidebar').classList.toggle('open'); });
+</script>
+</body>
+</html>

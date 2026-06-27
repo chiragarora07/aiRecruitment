@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Interviewers — HireFlow Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --white:     #FFFFFF;
+      --red:       #EF4444;
+      --green:     #22C55E;
+      --yellow:    #F59E0B;
+      --purple:    #8B5CF6;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+      --sidebar-w: 260px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top:0; left:0; bottom:0;
+      z-index: 50;
+      transition: transform var(--transition);
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 24px 20px;
+      font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:grid;place-items:center; }
+    .sidebar-nav { flex:1; padding:16px 12px; overflow-y:auto; }
+    .nav-section-label { font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);padding:12px 10px 6px; }
+    .nav-item {
+      display:flex;align-items:center;gap:12px;
+      padding:10px 12px;border-radius:10px;
+      color:var(--muted);font-size:.9rem;font-weight:500;
+      text-decoration:none;cursor:pointer;
+      transition:all var(--transition);margin-bottom:2px;
+    }
+    .nav-item:hover { background:var(--surface2);color:var(--text); }
+    .nav-item.active { background:var(--blue-glow);color:var(--blue); }
+    .nav-item i { width:18px;text-align:center;font-size:.95rem; }
+    .sidebar-footer { padding:16px 12px;border-top:1px solid var(--border); }
+    .sidebar-user {
+      display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;
+      transition:background var(--transition);
+    }
+    .sidebar-user:hover { background:var(--surface2); }
+    .user-avatar {
+      width:34px;height:34px;border-radius:50%;
+      background:linear-gradient(135deg,var(--blue),var(--cyan));
+      display:grid;place-items:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0;
+    }
+    .user-name { font-size:.85rem;font-weight:600;color:var(--text); }
+    .user-role { font-size:.75rem;color:var(--muted2); }
+
+    /* ── Main ── */
+    .main { margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background:rgba(10,15,30,.8);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:14px 28px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:40;
+    }
+    .topbar-left { display:flex;align-items:center;gap:12px; }
+    .hamburger-btn { display:none;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px; }
+    .page-title { font-family:var(--ff-head);font-size:1.15rem;font-weight:700; }
+    .breadcrumb { font-size:.8rem;color:var(--muted2); }
+    .breadcrumb span { color:var(--muted); }
+    .topbar-right { display:flex;align-items:center;gap:12px; }
+    .icon-btn {
+      width:36px;height:36px;border-radius:9px;
+      background:var(--surface2);border:1px solid var(--border);
+      color:var(--muted);display:grid;place-items:center;
+      cursor:pointer;transition:all var(--transition);text-decoration:none;position:relative;
+    }
+    .icon-btn:hover { color:var(--text);border-color:rgba(255,255,255,.2); }
+    .badge { position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);font-size:9px;font-weight:700;color:#fff;display:grid;place-items:center;border:2px solid var(--bg); }
+
+    /* ── Content ── */
+    .content { padding:28px;flex:1; }
+
+    /* ── Btn ── */
+    .btn {
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 20px;border-radius:var(--radius);
+      font-family:var(--ff-body);font-size:.875rem;font-weight:600;
+      cursor:pointer;border:none;text-decoration:none;
+      transition:all var(--transition);white-space:nowrap;
+    }
+    .btn-primary { background:var(--blue);color:#fff;box-shadow:0 0 20px rgba(59,130,246,.3); }
+    .btn-primary:hover { background:var(--blue-dark);box-shadow:0 0 30px rgba(59,130,246,.5);transform:translateY(-1px); }
+    .btn-ghost { background:transparent;color:var(--text);border:1px solid var(--border); }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04); }
+    .btn-danger { background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3); }
+    .btn-danger:hover { background:rgba(239,68,68,.25); }
+    .btn-sm { padding:6px 12px;font-size:.78rem; }
+
+    /* ── Stats ── */
+    .stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px; }
+    .stat-card {
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius-lg);padding:20px 22px;
+      display:flex;align-items:center;gap:16px;
+      transition:border-color var(--transition);
+    }
+    .stat-card:hover { border-color:rgba(59,130,246,.3); }
+    .stat-icon { width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0; }
+    .stat-icon.blue { background:var(--blue-glow);color:var(--blue); }
+    .stat-icon.green { background:rgba(34,197,94,.12);color:var(--green); }
+    .stat-icon.yellow { background:rgba(245,158,11,.12);color:var(--yellow); }
+    .stat-icon.purple { background:rgba(139,92,246,.12);color:var(--purple); }
+    .stat-num { font-family:var(--ff-head);font-size:1.6rem;font-weight:700; }
+    .stat-label { font-size:.8rem;color:var(--muted); }
+
+    /* ── Toolbar ── */
+    .toolbar { display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px; }
+    .search-box {
+      display:flex;align-items:center;gap:10px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:9px 14px;
+      flex:1;min-width:200px;max-width:340px;
+      transition:border-color var(--transition);
+    }
+    .search-box:focus-within { border-color:var(--blue); }
+    .search-box i { color:var(--muted2);font-size:.9rem; }
+    .search-box input { background:none;border:none;outline:none;color:var(--text);font-size:.875rem;width:100%;font-family:var(--ff-body); }
+    .search-box input::placeholder { color:var(--muted2); }
+    .filter-select {
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:9px 14px;
+      color:var(--text);font-size:.875rem;font-family:var(--ff-body);
+      cursor:pointer;outline:none;transition:border-color var(--transition);
+    }
+    .filter-select:focus { border-color:var(--blue); }
+    .filter-select option { background:var(--surface2); }
+    .toolbar-right { display:flex;gap:10px;margin-left:auto; }
+
+    /* ── View toggle ── */
+    .view-toggle {
+      display:flex;background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);overflow:hidden;
+    }
+    .view-btn {
+      padding:7px 13px;cursor:pointer;font-size:.85rem;color:var(--muted);
+      background:none;border:none;font-family:var(--ff-body);transition:all var(--transition);
+    }
+    .view-btn.active { background:var(--blue);color:#fff; }
+
+    /* ── Grid view ── */
+    .cards-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px; }
+    .interviewer-card {
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius-lg);padding:22px;
+      transition:all var(--transition);position:relative;overflow:hidden;
+    }
+    .interviewer-card::before {
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,var(--blue),var(--cyan));
+      opacity:0;transition:opacity var(--transition);
+    }
+    .interviewer-card:hover { border-color:rgba(59,130,246,.35);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3); }
+    .interviewer-card:hover::before { opacity:1; }
+
+    .card-header { display:flex;align-items:flex-start;gap:14px;margin-bottom:16px; }
+    .card-avatar {
+      width:48px;height:48px;border-radius:50%;
+      display:grid;place-items:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;
+    }
+    .card-info { flex:1;min-width:0; }
+    .card-name { font-family:var(--ff-head);font-size:.95rem;font-weight:700;margin-bottom:2px; }
+    .card-email { font-size:.75rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .card-dept { font-size:.75rem;color:var(--cyan);margin-top:2px; }
+
+    .avail-dot {
+      width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;
+    }
+    .avail-dot.available { background:var(--green);box-shadow:0 0 6px var(--green); }
+    .avail-dot.busy { background:var(--yellow); }
+    .avail-dot.unavailable { background:var(--red); }
+
+    .card-skills { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px; }
+    .skill-tag {
+      padding:3px 10px;border-radius:100px;
+      font-size:.7rem;font-weight:600;
+      background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+    }
+    .skill-tag.highlight { background:var(--blue-glow);border-color:rgba(59,130,246,.3);color:var(--blue); }
+
+    .card-stats { display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px; }
+    .card-stat { text-align:center;padding:10px 6px;background:var(--surface2);border-radius:10px; }
+    .card-stat .val { font-family:var(--ff-head);font-size:1.1rem;font-weight:700; }
+    .card-stat .lbl { font-size:.65rem;color:var(--muted);margin-top:2px; }
+
+    .card-drives { margin-bottom:16px; }
+    .drive-assign-label { font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);margin-bottom:8px; }
+    .drive-chip {
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 10px;border-radius:100px;font-size:.72rem;font-weight:500;
+      background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.25);color:var(--cyan);
+      margin:3px 3px 3px 0;
+    }
+
+    .card-actions { display:flex;gap:8px; }
+    .card-actions .btn { flex:1;justify-content:center;padding:8px 10px;font-size:.78rem; }
+
+    /* ── Table view ── */
+    .table-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden; }
+    .table-header { display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border); }
+    .table-title { font-family:var(--ff-head);font-size:1rem;font-weight:600; }
+    .table-count { font-size:.8rem;color:var(--muted); }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%;border-collapse:collapse; }
+    thead th {
+      padding:12px 16px;text-align:left;
+      font-size:.75rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+      color:var(--muted2);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;
+    }
+    thead th:first-child { padding-left:22px; }
+    thead th:last-child { padding-right:22px;text-align:right; }
+    tbody tr { border-bottom:1px solid var(--border);transition:background var(--transition); }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:rgba(255,255,255,.02); }
+    tbody td { padding:14px 16px;font-size:.875rem;vertical-align:middle; }
+    tbody td:first-child { padding-left:22px; }
+    tbody td:last-child { padding-right:22px;text-align:right; }
+
+    .int-cell { display:flex;align-items:center;gap:12px; }
+    .int-avatar { width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0; }
+    .int-name { font-weight:600;font-size:.875rem; }
+    .int-dept { font-size:.75rem;color:var(--muted); }
+
+    .pill { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:.72rem;font-weight:600; }
+    .pill-blue   { background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.25); }
+    .pill-green  { background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25); }
+    .pill-yellow { background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.25); }
+    .pill-red    { background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25); }
+    .pill-gray   { background:rgba(148,163,184,.1);color:var(--muted);border:1px solid rgba(148,163,184,.2); }
+
+    .action-group { display:flex;align-items:center;gap:6px;justify-content:flex-end; }
+    .action-btn {
+      width:30px;height:30px;border-radius:8px;
+      background:var(--surface2);border:1px solid var(--border);
+      color:var(--muted);display:grid;place-items:center;
+      cursor:pointer;font-size:.8rem;transition:all var(--transition);text-decoration:none;
+    }
+    .action-btn:hover { color:var(--text);border-color:rgba(255,255,255,.2); }
+    .action-btn.blue:hover { color:var(--blue);border-color:rgba(59,130,246,.4);background:var(--blue-glow); }
+    .action-btn.red:hover { color:var(--red);border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.1); }
+    .action-btn.green:hover { color:var(--green);border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.1); }
+
+    /* Pagination */
+    .pagination { display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px; }
+    .page-info { font-size:.8rem;color:var(--muted); }
+    .page-btns { display:flex;gap:4px; }
+    .page-btn { width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:.8rem;font-family:var(--ff-body);font-weight:600;transition:all var(--transition); }
+    .page-btn:hover { color:var(--text);border-color:rgba(255,255,255,.2); }
+    .page-btn.active { background:var(--blue);border-color:var(--blue);color:#fff; }
+    .page-btn:disabled { opacity:.4;cursor:not-allowed; }
+
+    /* ── Modal ── */
+    .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity var(--transition); }
+    .modal-overlay.open { opacity:1;pointer-events:all; }
+    .modal { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:540px;transform:translateY(20px);transition:transform var(--transition); }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:20px; }
+    .modal-title { font-family:var(--ff-head);font-size:1.1rem;font-weight:700; }
+    .modal-close { width:32px;height:32px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);display:grid;place-items:center;cursor:pointer;font-size:.9rem;transition:all var(--transition); }
+    .modal-close:hover { color:var(--text); }
+    .modal-body { margin-bottom:22px; }
+    .modal-footer { display:flex;gap:10px;justify-content:flex-end; }
+
+    /* Form */
+    .form-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px; }
+    .form-group { display:flex;flex-direction:column;gap:6px; }
+    .form-group.full { grid-column:1/-1; }
+    .form-label { font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2); }
+    .form-input, .form-select, .form-textarea {
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:10px 14px;
+      color:var(--text);font-size:.875rem;font-family:var(--ff-body);outline:none;
+      transition:border-color var(--transition);width:100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--blue); }
+    .form-select option { background:var(--surface2); }
+    .form-textarea { resize:vertical;min-height:80px; }
+    .form-input::placeholder, .form-textarea::placeholder { color:var(--muted2); }
+
+    /* Skills input */
+    .tags-input-wrap {
+      background:var(--surface2);border:1px solid var(--border);
+      border-radius:var(--radius);padding:8px 12px;
+      display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+      transition:border-color var(--transition); cursor:text;
+    }
+    .tags-input-wrap:focus-within { border-color:var(--blue); }
+    .tag-chip {
+      display:inline-flex;align-items:center;gap:5px;
+      padding:3px 10px;border-radius:100px;
+      background:var(--blue-glow);border:1px solid rgba(59,130,246,.3);color:var(--blue);
+      font-size:.72rem;font-weight:600;
+    }
+    .tag-chip .rm { cursor:pointer;opacity:.7; }
+    .tag-chip .rm:hover { opacity:1; }
+    .tags-input { background:none;border:none;outline:none;color:var(--text);font-size:.8rem;font-family:var(--ff-body);min-width:80px;flex:1; }
+    .tags-input::placeholder { color:var(--muted2); }
+
+    /* Assign drive modal */
+    .drive-list { display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto; }
+    .drive-option {
+      display:flex;align-items:center;gap:12px;
+      padding:12px 14px;border-radius:var(--radius);
+      background:var(--surface2);border:1px solid var(--border);
+      cursor:pointer;transition:all var(--transition);
+    }
+    .drive-option:hover { border-color:rgba(59,130,246,.4); }
+    .drive-option.selected { border-color:var(--blue);background:var(--blue-glow); }
+    .drive-option-icon { width:36px;height:36px;border-radius:9px;background:var(--blue-glow);color:var(--blue);display:grid;place-items:center;font-size:.85rem;flex-shrink:0; }
+    .drive-option-info { flex:1; }
+    .drive-option-name { font-size:.875rem;font-weight:600; }
+    .drive-option-meta { font-size:.75rem;color:var(--muted); }
+    .drive-option-check { width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;flex-shrink:0; }
+    .drive-option.selected .drive-option-check { background:var(--blue);border-color:var(--blue);color:#fff; }
+
+    /* Empty state */
+    .empty-state { padding:60px 20px;text-align:center; }
+    .empty-icon { width:64px;height:64px;border-radius:16px;background:var(--surface2);display:grid;place-items:center;font-size:1.6rem;color:var(--muted2);margin:0 auto 16px; }
+    .empty-state h3 { font-family:var(--ff-head);margin-bottom:6px; }
+    .empty-state p { color:var(--muted);font-size:.875rem; }
+
+    /* Toast */
+    .toast-container { position:fixed;bottom:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:10px; }
+    .toast { display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:slideInToast .3s ease; }
+    .toast.success { border-left:3px solid var(--green); }
+    .toast.error   { border-left:3px solid var(--red); }
+    .toast.info    { border-left:3px solid var(--blue); }
+    .toast-icon { font-size:1rem;flex-shrink:0; }
+    .toast.success .toast-icon { color:var(--green); }
+    .toast.error   .toast-icon { color:var(--red); }
+    .toast.info    .toast-icon { color:var(--blue); }
+    .toast-msg { font-size:.85rem;flex:1; }
+    .toast-close { color:var(--muted2);cursor:pointer;font-size:.8rem;flex-shrink:0; }
+    .toast-close:hover { color:var(--text); }
+    @keyframes slideInToast { from{transform:translateX(100%);opacity:0} to{transform:none;opacity:1} }
+
+    /* Skeleton */
+    .skeleton { background:linear-gradient(90deg,var(--surface2) 25%,rgba(255,255,255,.05) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px; }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .skel-card { height:260px;border-radius:var(--radius-lg); }
+
+    /* Confirm modal */
+    .confirm-modal-body p { color:var(--muted);font-size:.9rem; }
+
+    /* Sidebar overlay */
+    .sidebar-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49; }
+
+    /* ── Responsive ── */
+    @media(max-width:1100px) { .stats-row{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:900px) { .sidebar{transform:translateX(-100%);} .sidebar.open{transform:none;} .main{margin-left:0;} .hamburger-btn{display:block;} .sidebar-overlay{display:block;} }
+    @media(max-width:640px) { .stats-row{grid-template-columns:1fr 1fr;} .content{padding:16px;} .form-grid{grid-template-columns:1fr;} .cards-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+  <a href="admindashboard.html" class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    HireFlow
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a href="admindashboard.html" class="nav-item"><i class="fas fa-grid-2"></i> Dashboard</a>
+    <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+    <div class="nav-section-label">Recruitment</div>
+    <a href="managedrives.html" class="nav-item"><i class="fas fa-bullhorn"></i> Manage Drives</a>
+    <a href="managecandidates.html" class="nav-item"><i class="fas fa-users"></i> Candidates</a>
+    <a href="manageinterviewers.html" class="nav-item active"><i class="fas fa-user-tie"></i> Interviewers</a>
+    <a href="results.html" class="nav-item"><i class="fas fa-trophy"></i> Results</a>
+    <div class="nav-section-label">System</div>
+    <a href="organisations.html" class="nav-item"><i class="fas fa-building"></i> Organisations</a>
+    <a href="settings.html" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+      <div class="user-info"><div class="user-name">Admin User</div><div class="user-role">Administrator</div></div>
+      <i class="fas fa-chevron-up" style="color:var(--muted2);font-size:.7rem;"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="page-title">Manage Interviewers</div>
+        <div class="breadcrumb">Admin <span>/ Interviewers</span></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="notifications.html" class="icon-btn" title="Notifications">
+        <i class="fas fa-bell"></i><span class="badge">4</span>
+      </a>
+      <a href="settings.html" class="icon-btn" title="Settings"><i class="fas fa-gear"></i></a>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, department, skill…" />
+      </div>
+      <select class="filter-select" id="filterDept">
+        <option value="">All Departments</option>
+        <option>Engineering</option>
+        <option>Product</option>
+        <option>Data Science</option>
+        <option>Marketing</option>
+        <option>Finance</option>
+        <option>HR</option>
+      </select>
+      <select class="filter-select" id="filterAvail">
+        <option value="">Availability</option>
+        <option value="available">Available</option>
+        <option value="busy">Busy</option>
+        <option value="unavailable">Unavailable</option>
+      </select>
+      <div class="toolbar-right">
+        <div class="view-toggle">
+          <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')"><i class="fas fa-grid-2"></i></button>
+          <button class="view-btn" id="listViewBtn" onclick="setView('list')"><i class="fas fa-list"></i></button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('addModal')"><i class="fas fa-plus"></i> Add Interviewer</button>
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div id="contentArea">
+      <!-- Skeleton -->
+      <div class="cards-grid" id="skeletonGrid">
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="paginationBar" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-top:16px;display:none;">
+      <div class="page-info" id="pageInfo"></div>
+      <div class="page-btns" id="pageBtns"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Add Interviewer Modal ── -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div class="modal-title" id="addModalTitle">Add Interviewer</div>
+      <button class="modal-close" onclick="closeModal('addModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="fName" placeholder="Dr. Ravi Kumar" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" id="fEmail" placeholder="ravi.k@company.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Department</label>
+          <select class="form-select" id="fDept">
+            <option value="">Select department</option>
+            <option>Engineering</option>
+            <option>Product</option>
+            <option>Data Science</option>
+            <option>Marketing</option>
+            <option>Finance</option>
+            <option>HR</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Designation</label>
+          <input type="text" class="form-input" id="fDesig" placeholder="Senior Engineer" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Experience (years)</label>
+          <input type="number" class="form-input" id="fExp" placeholder="8" min="0" max="50" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Availability</label>
+          <select class="form-select" id="fAvail">
+            <option value="available">Available</option>
+            <option value="busy">Busy</option>
+            <option value="unavailable">Unavailable</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Skills (press Enter to add)</label>
+          <div class="tags-input-wrap" id="tagsWrap" onclick="document.getElementById('tagInput').focus()">
+            <input type="text" class="tags-input" id="tagInput" placeholder="Add skill…" />
+          </div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="fNotes" placeholder="Optional notes about this interviewer…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-primary" id="saveInterviewerBtn" onclick="saveInterviewer()"><i class="fas fa-check"></i> <span id="saveBtnLabel">Add Interviewer</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Assign Drive Modal ── -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Assign Drive</div>
+      <button class="modal-close" onclick="closeModal('assignModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:14px;">Select drives to assign to <strong id="assignName" style="color:var(--text);"></strong></p>
+      <div class="drive-list" id="driveList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAssign()"><i class="fas fa-check"></i> Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="confirmTitle">Confirm</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body confirm-modal-body"><p id="confirmMsg"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  /* ══ DATA ══ */
+  const avatarColors = ['#3B82F6','#06B6D4','#8B5CF6','#EC4899','#F59E0B','#22C55E','#F97316','#EF4444'];
+  const allDrives = [
+    { id:1, name:'Software Engineer 2025', org:'TechCorp', candidates:48 },
+    { id:2, name:'Data Analyst', org:'DataHub', candidates:32 },
+    { id:3, name:'Product Manager', org:'ProductCo', candidates:24 },
+    { id:4, name:'Marketing Intern', org:'BrandX', candidates:19 },
+    { id:5, name:'Finance Associate', org:'FinGroup', candidates:27 },
+  ];
+
+  let interviewers = [
+    { id:1, name:'Dr. Ravi Kumar', email:'ravi.k@techcorp.com', dept:'Engineering', desig:'Principal Engineer', exp:12, availability:'available', skills:['System Design','DSA','Python','Go'], interviews:18, completed:15, rating:4.8, assignedDrives:[1,2], notes:'Senior technical panel member.' },
+    { id:2, name:'Priya Menon', email:'priya.m@techcorp.com', dept:'Product', desig:'Senior PM', exp:9, availability:'available', skills:['Product Strategy','Analytics','Figma','Agile'], interviews:12, completed:10, rating:4.6, assignedDrives:[3], notes:'Excellent communication evaluator.' },
+    { id:3, name:'Arun Nair', email:'arun.n@datahub.com', dept:'Data Science', desig:'Data Science Lead', exp:7, availability:'busy', skills:['ML','Statistics','Python','Tableau'], interviews:9, completed:7, rating:4.5, assignedDrives:[2], notes:'' },
+    { id:4, name:'Sunita Rao', email:'sunita.r@brandx.com', dept:'Marketing', desig:'Marketing Director', exp:11, availability:'available', skills:['Brand Strategy','SEO','Content','Analytics'], interviews:7, completed:6, rating:4.7, assignedDrives:[4], notes:'' },
+    { id:5, name:'Vikash Sharma', email:'vikash.s@fingroup.com', dept:'Finance', desig:'CFO Office', exp:14, availability:'unavailable', skills:['Financial Modelling','CFA','Excel','Risk'], interviews:5, completed:5, rating:4.9, assignedDrives:[5], notes:'Currently on leave.' },
+    { id:6, name:'Neeta Joshi', email:'neeta.j@techcorp.com', dept:'HR', desig:'HR Business Partner', exp:8, availability:'available', skills:['Behavioral','Leadership','Communication'], interviews:22, completed:20, rating:4.4, assignedDrives:[1,3,4], notes:'' },
+    { id:7, name:'Karan Malhotra', email:'karan.m@techcorp.com', dept:'Engineering', desig:'Backend Engineer', exp:5, availability:'available', skills:['Java','Spring Boot','Microservices','SQL'], interviews:6, completed:5, rating:4.3, assignedDrives:[1], notes:'Good for backend roles.' },
+    { id:8, name:'Ananya Pillai', email:'ananya.p@datahub.com', dept:'Data Science', desig:'ML Engineer', exp:4, availability:'busy', skills:['Deep Learning','PyTorch','NLP','Python'], interviews:4, completed:3, rating:4.2, assignedDrives:[2], notes:'' },
+  ];
+
+  const PAGE_SIZE = 6;
+  let currentPage = 1;
+  let filtered = [...interviewers];
+  let currentView = 'grid';
+  let editingId = null;
+  let assigningId = null;
+  let selectedDrives = new Set();
+  let skillTags = [];
+
+  function getInitials(n) { return n.split(' ').map(x=>x[0]).join('').toUpperCase().slice(0,2); }
+  function getColor(id) { return avatarColors[id % avatarColors.length]; }
+  function availLabel(a) { return {available:'Available',busy:'Busy',unavailable:'Unavailable'}[a]||a; }
+  function availClass(a) { return {available:'pill-green',busy:'pill-yellow',unavailable:'pill-red'}[a]||'pill-gray'; }
+  function availDot(a) { return `<div class="avail-dot ${a}"></div>`; }
+  function stars(r) {
+    let s='';
+    for(let i=1;i<=5;i++) s+=`<i class="fa${i<=Math.floor(r)?'s':'r'} fa-star" style="color:${i<=r?'var(--yellow)':'var(--muted2)'};font-size:.7rem;"></i>`;
+    return `<span style="display:inline-flex;gap:2px;align-items:center;">${s} <span style="font-size:.75rem;color:var(--muted);margin-left:3px;">${r}</span></span>`;
+  }
+
+  /* ── Stats ── */
+  function renderStats() {
+    const total = interviewers.length;
+    const available = interviewers.filter(i=>i.availability==='available').length;
+    const busy = interviewers.filter(i=>i.availability==='busy').length;
+    const totalInterviews = interviewers.reduce((s,i)=>s+i.interviews,0);
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-user-tie"></i></div><div><div class="stat-num">${total}</div><div class="stat-label">Total Interviewers</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-circle-check"></i></div><div><div class="stat-num">${available}</div><div class="stat-label">Available</div></div></div>
+      <div class="stat-card"><div class="stat-icon yellow"><i class="fas fa-hourglass-half"></i></div><div><div class="stat-num">${busy}</div><div class="stat-label">Currently Busy</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-comments"></i></div><div><div class="stat-num">${totalInterviews}</div><div class="stat-label">Total Interviews</div></div></div>
+    `;
+  }
+
+  /* ── Render ── */
+  function render() {
+    const area = document.getElementById('contentArea');
+    const start = (currentPage-1)*PAGE_SIZE;
+    const page = filtered.slice(start, start+PAGE_SIZE);
+    const pb = document.getElementById('paginationBar');
+
+    if (filtered.length===0) {
+      area.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);"><div class="empty-state"><div class="empty-icon"><i class="fas fa-user-slash"></i></div><h3>No interviewers found</h3><p>Try adjusting your filters, or add a new interviewer.</p></div></div>`;
+      pb.style.display='none'; return;
+    }
+
+    pb.style.display='flex';
+    if (currentView==='grid') renderGrid(page, area);
+    else renderList(page, area);
+    renderPagination();
+  }
+
+  function renderGrid(page, area) {
+    area.innerHTML = `<div class="cards-grid">${page.map(iv=>`
+      <div class="interviewer-card">
+        <div class="card-header">
+          <div class="card-avatar" style="background:${getColor(iv.id)}">${getInitials(iv.name)}</div>
+          <div class="card-info">
+            <div class="card-name">${iv.name}</div>
+            <div class="card-email">${iv.email}</div>
+            <div class="card-dept">${iv.desig} · ${iv.dept}</div>
+          </div>
+          ${availDot(iv.availability)}
+        </div>
+        <div class="card-skills">
+          ${iv.skills.slice(0,4).map((s,i)=>`<span class="skill-tag${i<2?' highlight':''}">${s}</span>`).join('')}
+          ${iv.skills.length>4?`<span class="skill-tag">+${iv.skills.length-4}</span>`:''}
+        </div>
+        <div class="card-stats">
+          <div class="card-stat"><div class="val">${iv.interviews}</div><div class="lbl">Assigned</div></div>
+          <div class="card-stat"><div class="val">${iv.completed}</div><div class="lbl">Completed</div></div>
+          <div class="card-stat"><div class="val">${iv.exp}y</div><div class="lbl">Exp.</div></div>
+        </div>
+        <div class="card-drives">
+          <div class="drive-assign-label">Assigned Drives</div>
+          ${iv.assignedDrives.length ? iv.assignedDrives.map(did=>{
+            const d=allDrives.find(x=>x.id===did);
+            return d?`<span class="drive-chip"><i class="fas fa-bullhorn" style="font-size:.65rem;"></i>${d.name}</span>`:'';
+          }).join('') : '<span style="font-size:.75rem;color:var(--muted2);">No drives assigned</span>'}
+        </div>
+        <div style="margin-bottom:14px;">${stars(iv.rating)}</div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" onclick="openAssign(${iv.id})"><i class="fas fa-link"></i> Assign</button>
+          <button class="btn btn-ghost" onclick="openEdit(${iv.id})"><i class="fas fa-pen"></i> Edit</button>
+          <button class="btn btn-danger btn-sm" style="flex:0 0 auto;padding:8px 10px;" onclick="confirmRemove(${iv.id})" title="Remove"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  function renderList(page, area) {
+    area.innerHTML = `<div class="table-card">
+      <div class="table-header">
+        <div><div class="table-title">Interviewers</div><div class="table-count">${filtered.length} total</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Interviewer</th><th>Department</th><th>Skills</th>
+            <th>Interviews</th><th>Rating</th><th>Availability</th><th style="text-align:right;">Actions</th>
+          </tr></thead>
+          <tbody>${page.map(iv=>`
+            <tr>
+              <td><div class="int-cell"><div class="int-avatar" style="background:${getColor(iv.id)}">${getInitials(iv.name)}</div><div><div class="int-name">${iv.name}</div><div class="int-dept">${iv.email}</div></div></div></td>
+              <td><span style="font-size:.8rem;color:var(--muted);">${iv.dept}</span></td>
+              <td>${iv.skills.slice(0,3).map(s=>`<span class="skill-tag" style="margin:2px;">${s}</span>`).join(' ')}</td>
+              <td><span style="font-size:.875rem;">${iv.completed}<span style="color:var(--muted2);">/${iv.interviews}</span></span></td>
+              <td>${stars(iv.rating)}</td>
+              <td><span class="pill ${availClass(iv.availability)}">${availLabel(iv.availability)}</span></td>
+              <td><div class="action-group">
+                <button class="action-btn blue" title="Assign Drive" onclick="openAssign(${iv.id})"><i class="fas fa-link"></i></button>
+                <button class="action-btn" title="Edit" onclick="openEdit(${iv.id})"><i class="fas fa-pen"></i></button>
+                <button class="action-btn red" title="Remove" onclick="confirmRemove(${iv.id})"><i class="fas fa-trash"></i></button>
+              </div></td>
+            </tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  /* ── Pagination ── */
+  function renderPagination() {
+    const total=filtered.length, pages=Math.ceil(total/PAGE_SIZE);
+    const start=(currentPage-1)*PAGE_SIZE+1, end=Math.min(currentPage*PAGE_SIZE,total);
+    document.getElementById('pageInfo').textContent = `Showing ${start}–${end} of ${total}`;
+    let html=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+    for(let i=1;i<=pages;i++) html+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+    html+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages||pages===0?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+    document.getElementById('pageBtns').innerHTML=html;
+  }
+  function goPage(p) { const pages=Math.ceil(filtered.length/PAGE_SIZE); if(p<1||p>pages)return; currentPage=p; render(); }
+
+  /* ── Filter ── */
+  function applyFilters() {
+    const q=document.getElementById('searchInput').value.toLowerCase();
+    const dept=document.getElementById('filterDept').value;
+    const avail=document.getElementById('filterAvail').value;
+    filtered=interviewers.filter(iv=>{
+      const matchQ=!q||iv.name.toLowerCase().includes(q)||iv.email.toLowerCase().includes(q)||iv.dept.toLowerCase().includes(q)||iv.skills.some(s=>s.toLowerCase().includes(q));
+      const matchD=!dept||iv.dept===dept;
+      const matchA=!avail||iv.availability===avail;
+      return matchQ&&matchD&&matchA;
+    });
+    currentPage=1; render();
+  }
+  ['searchInput','filterDept','filterAvail'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',applyFilters);
+    document.getElementById(id).addEventListener('change',applyFilters);
+  });
+
+  /* ── View toggle ── */
+  function setView(v) {
+    currentView=v;
+    document.getElementById('gridViewBtn').classList.toggle('active',v==='grid');
+    document.getElementById('listViewBtn').classList.toggle('active',v==='list');
+    render();
+  }
+
+  /* ── Tags input ── */
+  document.getElementById('tagInput').addEventListener('keydown', e=>{
+    if(e.key==='Enter'||e.key===',') {
+      e.preventDefault();
+      const val=e.target.value.trim().replace(/,$/,'');
+      if(val&&!skillTags.includes(val)) { skillTags.push(val); renderTags(); }
+      e.target.value='';
+    }
+    if(e.key==='Backspace'&&!e.target.value&&skillTags.length) { skillTags.pop(); renderTags(); }
+  });
+  function renderTags() {
+    const wrap=document.getElementById('tagsWrap');
+    wrap.querySelectorAll('.tag-chip').forEach(el=>el.remove());
+    skillTags.forEach((tag,i)=>{
+      const chip=document.createElement('span');
+      chip.className='tag-chip';
+      chip.innerHTML=`${tag}<span class="rm" onclick="removeTag(${i})"><i class="fas fa-times" style="font-size:.6rem;"></i></span>`;
+      wrap.insertBefore(chip, document.getElementById('tagInput'));
+    });
+  }
+  function removeTag(i) { skillTags.splice(i,1); renderTags(); }
+
+  /* ── Add / Edit Modal ── */
+  function openEdit(id) {
+    editingId=id;
+    const iv=interviewers.find(x=>x.id===id);
+    document.getElementById('addModalTitle').textContent='Edit Interviewer';
+    document.getElementById('saveBtnLabel').textContent='Save Changes';
+    document.getElementById('fName').value=iv.name;
+    document.getElementById('fEmail').value=iv.email;
+    document.getElementById('fDept').value=iv.dept;
+    document.getElementById('fDesig').value=iv.desig;
+    document.getElementById('fExp').value=iv.exp;
+    document.getElementById('fAvail').value=iv.availability;
+    document.getElementById('fNotes').value=iv.notes;
+    skillTags=[...iv.skills]; renderTags();
+    openModal('addModal');
+  }
+
+  function resetAddForm() {
+    editingId=null;
+    document.getElementById('addModalTitle').textContent='Add Interviewer';
+    document.getElementById('saveBtnLabel').textContent='Add Interviewer';
+    ['fName','fEmail','fDesig','fExp','fNotes'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fDept').value='';
+    document.getElementById('fAvail').value='available';
+    skillTags=[]; renderTags();
+  }
+
+  function saveInterviewer() {
+    const name=document.getElementById('fName').value.trim();
+    const email=document.getElementById('fEmail').value.trim();
+    const dept=document.getElementById('fDept').value;
+    if(!name||!email||!dept) { showToast('Please fill in all required fields.','error'); return; }
+
+    if(editingId) {
+      const iv=interviewers.find(x=>x.id===editingId);
+      iv.name=name; iv.email=email; iv.dept=dept;
+      iv.desig=document.getElementById('fDesig').value.trim()||iv.desig;
+      iv.exp=parseInt(document.getElementById('fExp').value)||iv.exp;
+      iv.availability=document.getElementById('fAvail').value;
+      iv.notes=document.getElementById('fNotes').value.trim();
+      iv.skills=[...skillTags];
+      closeModal('addModal'); resetAddForm(); applyFilters(); renderStats();
+      showToast(`${name} updated successfully.`,'success');
+    } else {
+      const newIv = {
+        id: Date.now(), name, email, dept,
+        desig: document.getElementById('fDesig').value.trim()||'Interviewer',
+        exp: parseInt(document.getElementById('fExp').value)||0,
+        availability: document.getElementById('fAvail').value,
+        skills: [...skillTags],
+        interviews:0, completed:0, rating:0, assignedDrives:[],
+        notes: document.getElementById('fNotes').value.trim()
+      };
+      interviewers.unshift(newIv);
+      closeModal('addModal'); resetAddForm(); applyFilters(); renderStats();
+      showToast(`${name} added as an interviewer.`,'success');
+    }
+  }
+
+  /* ── Assign Drive ── */
+  function openAssign(id) {
+    assigningId=id;
+    const iv=interviewers.find(x=>x.id===id);
+    selectedDrives=new Set(iv.assignedDrives);
+    document.getElementById('assignName').textContent=iv.name;
+    renderDriveList();
+    openModal('assignModal');
+  }
+  function renderDriveList() {
+    document.getElementById('driveList').innerHTML=allDrives.map(d=>`
+      <div class="drive-option${selectedDrives.has(d.id)?' selected':''}" onclick="toggleDrive(${d.id})">
+        <div class="drive-option-icon"><i class="fas fa-bullhorn"></i></div>
+        <div class="drive-option-info">
+          <div class="drive-option-name">${d.name}</div>
+          <div class="drive-option-meta">${d.org} · ${d.candidates} candidates</div>
+        </div>
+        <div class="drive-option-check">${selectedDrives.has(d.id)?'<i class="fas fa-check" style="font-size:.7rem;color:#fff;"></i>':''}</div>
+      </div>
+    `).join('');
+  }
+  function toggleDrive(did) {
+    selectedDrives.has(did)?selectedDrives.delete(did):selectedDrives.add(did);
+    renderDriveList();
+  }
+  function confirmAssign() {
+    const iv=interviewers.find(x=>x.id===assigningId);
+    iv.assignedDrives=[...selectedDrives];
+    closeModal('assignModal');
+    render();
+    showToast(`Drives updated for ${iv.name}.`,'success');
+  }
+
+  /* ── Remove ── */
+  function confirmRemove(id) {
+    const iv=interviewers.find(x=>x.id===id);
+    document.getElementById('confirmTitle').textContent='Remove Interviewer';
+    document.getElementById('confirmMsg').textContent=`Are you sure you want to remove ${iv.name}? This action cannot be undone.`;
+    document.getElementById('confirmOkBtn').onclick=()=>{
+      interviewers=interviewers.filter(x=>x.id!==id);
+      filtered=filtered.filter(x=>x.id!==id);
+      closeModal('confirmModal'); render(); renderStats();
+      showToast(`${iv.name} has been removed.`,'error');
+    };
+    openModal('confirmModal');
+  }
+
+  /* ── Modal helpers ── */
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    if(id==='addModal') resetAddForm();
+  }
+  document.querySelectorAll('.modal-overlay').forEach(o=>{
+    o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+  });
+
+  /* ── Toast ── */
+  function showToast(msg, type='info') {
+    const icons={success:'fa-check-circle',error:'fa-times-circle',info:'fa-circle-info'};
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<i class="fas ${icons[type]} toast-icon"></i><span class="toast-msg">${msg}</span><i class="fas fa-times toast-close" onclick="this.parentElement.remove()"></i>`;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(()=>t.remove(),4000);
+  }
+
+  /* ── Sidebar mobile ── */
+  document.getElementById('hamburgerBtn').addEventListener('click',()=>{
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').style.display='block';
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click',()=>{
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').style.display='none';
+  });
+
+  /* ── Init ── */
+  setTimeout(()=>{ renderStats(); render(); }, 900);
+</script>
+</body>
+</html>

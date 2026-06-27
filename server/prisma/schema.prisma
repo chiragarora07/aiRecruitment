@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+
+model User {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  role String
+
+  applications Application[]
+  organizations Organization[]
+}
+
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  logo        String?
+  website     String?   // <-- Add this
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  adminId     Int
+  admin       User @relation(fields: [adminId], references: [id])
+
+  drives      Drive[]
+}
+
+
+model Drive {
+  id             Int      @id @default(autoincrement())
+
+  title          String
+  description    String
+
+  jobType        String
+  location       String
+  salary         String?
+
+  status         String   @default("OPEN")
+
+  applicationDeadline DateTime
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  applications   Application[]
+}
+
+
+model Application {
+  id Int @id @default(autoincrement())
+
+  resumeUrl String?
+  cvScore Int?
+  aiScore Int?
+  interviewScore Int?
+  finalScore Int?
+
+  status String @default("Applied")
+
+  userId Int
+  driveId Int
+
+  resumeAnalysisId Int?
+  resumeAnalysis ResumeAnalysis? @relation(fields: [resumeAnalysisId], references: [id])
+
+  user User @relation(fields:[userId], references:[id])
+  drive Drive @relation(fields:[driveId], references:[id])
+  interview Interview?
+}
+
+model ResumeAnalysis {
+  id Int @id @default(autoincrement())
+
+  fileName String
+  resumeText String
+
+  atsScore Int
+  analysis Json
+
+  createdAt DateTime @default(now())
+
+  applications Application[]
+}
+model Interview {
+  id              Int      @id @default(autoincrement())
+
+applicationId Int @unique
+  application      Application @relation(fields: [applicationId], references: [id])
+
+  interviewerName String
+  interviewDate   DateTime
+
+  mode            String
+  meetingLink     String?
+
+  status          String   @default("SCHEDULED")
+
+  feedback        String?
+  rating          Int?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

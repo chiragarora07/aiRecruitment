@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Candidates — HireFlow Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --white:     #FFFFFF;
+      --red:       #EF4444;
+      --green:     #22C55E;
+      --yellow:    #F59E0B;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+      --sidebar-w: 260px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 50;
+      transition: transform var(--transition);
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 24px 20px;
+      font-family: var(--ff-head); font-size: 1.2rem; font-weight: 700;
+      color: var(--white); text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .logo-icon {
+      width: 32px; height: 32px; background: var(--blue);
+      border-radius: 8px; display: grid; place-items: center;
+    }
+    .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted2);
+      padding: 12px 10px 6px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 10px;
+      color: var(--muted); font-size: 0.9rem; font-weight: 500;
+      text-decoration: none; cursor: pointer;
+      transition: all var(--transition);
+      margin-bottom: 2px;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: var(--blue-glow); color: var(--blue); }
+    .nav-item i { width: 18px; text-align: center; font-size: 0.95rem; }
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px;
+      cursor: pointer; transition: background var(--transition);
+    }
+    .sidebar-user:hover { background: var(--surface2); }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 0.8rem; color: #fff;
+      flex-shrink: 0;
+    }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .user-role { font-size: 0.75rem; color: var(--muted2); }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: rgba(10,15,30,0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 40;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .hamburger-btn {
+      display: none; background: none; border: none;
+      color: var(--muted); font-size: 1.2rem; cursor: pointer; padding: 4px;
+    }
+    .page-title { font-family: var(--ff-head); font-size: 1.15rem; font-weight: 700; }
+    .breadcrumb { font-size: 0.8rem; color: var(--muted2); }
+    .breadcrumb span { color: var(--muted); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 9px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); display: grid; place-items: center;
+      cursor: pointer; transition: all var(--transition); position: relative;
+      text-decoration: none;
+    }
+    .icon-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .badge {
+      position: absolute; top: -4px; right: -4px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--red); font-size: 9px; font-weight: 700;
+      color: #fff; display: grid; place-items: center;
+      border: 2px solid var(--bg);
+    }
+
+    /* ── Content ── */
+    .content { padding: 28px; flex: 1; }
+
+    /* ── Btn ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: var(--radius);
+      font-family: var(--ff-body); font-size: 0.875rem; font-weight: 600;
+      cursor: pointer; border: none; text-decoration: none;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+    .btn-primary:hover { background: var(--blue-dark); box-shadow: 0 0 30px rgba(59,130,246,0.5); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); }
+    .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+    .btn-success { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .btn-success:hover { background: rgba(34,197,94,0.25); }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px 22px;
+      display: flex; align-items: center; gap: 16px;
+      transition: border-color var(--transition);
+    }
+    .stat-card:hover { border-color: rgba(59,130,246,0.3); }
+    .stat-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: grid; place-items: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .stat-icon.blue { background: var(--blue-glow); color: var(--blue); }
+    .stat-icon.green { background: rgba(34,197,94,0.12); color: var(--green); }
+    .stat-icon.yellow { background: rgba(245,158,11,0.12); color: var(--yellow); }
+    .stat-icon.red { background: rgba(239,68,68,0.12); color: var(--red); }
+    .stat-num { font-family: var(--ff-head); font-size: 1.6rem; font-weight: 700; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); }
+
+    /* ── Toolbar ── */
+    .toolbar {
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 9px 14px;
+      flex: 1; min-width: 200px; max-width: 340px;
+      transition: border-color var(--transition);
+    }
+    .search-box:focus-within { border-color: var(--blue); }
+    .search-box i { color: var(--muted2); font-size: 0.9rem; }
+    .search-box input {
+      background: none; border: none; outline: none;
+      color: var(--text); font-size: 0.875rem; width: 100%;
+      font-family: var(--ff-body);
+    }
+    .search-box input::placeholder { color: var(--muted2); }
+    .filter-select {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 9px 14px;
+      color: var(--text); font-size: 0.875rem; font-family: var(--ff-body);
+      cursor: pointer; outline: none;
+      transition: border-color var(--transition);
+    }
+    .filter-select:focus { border-color: var(--blue); }
+    .filter-select option { background: var(--surface2); }
+    .toolbar-right { display: flex; gap: 10px; margin-left: auto; }
+
+    /* ── Table ── */
+    .table-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .table-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px; border-bottom: 1px solid var(--border);
+    }
+    .table-title { font-family: var(--ff-head); font-size: 1rem; font-weight: 600; }
+    .table-count { font-size: 0.8rem; color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 12px 16px; text-align: left;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--muted2);
+      background: var(--surface2); border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    thead th:first-child { padding-left: 22px; }
+    thead th:last-child { padding-right: 22px; text-align: right; }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,0.02); }
+    tbody td { padding: 14px 16px; font-size: 0.875rem; vertical-align: middle; }
+    tbody td:first-child { padding-left: 22px; }
+    tbody td:last-child { padding-right: 22px; text-align: right; }
+
+    /* Checkbox */
+    .cb {
+      width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer;
+    }
+
+    /* Candidate cell */
+    .cand-cell { display: flex; align-items: center; gap: 12px; }
+    .cand-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 0.8rem; color: #fff;
+      flex-shrink: 0; font-family: var(--ff-head);
+    }
+    .cand-name { font-weight: 600; font-size: 0.875rem; }
+    .cand-email { font-size: 0.75rem; color: var(--muted); }
+
+    /* Score bar */
+    .score-wrap { display: flex; align-items: center; gap: 8px; }
+    .score-bar-track {
+      width: 64px; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,0.08); overflow: hidden;
+    }
+    .score-bar-fill { height: 100%; border-radius: 3px; }
+    .score-val { font-size: 0.8rem; font-weight: 600; }
+
+    /* Badge / pill */
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 100px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .pill-blue   { background: var(--blue-glow); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+    .pill-green  { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .pill-yellow { background: rgba(245,158,11,0.12); color: var(--yellow); border: 1px solid rgba(245,158,11,0.25); }
+    .pill-red    { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+    .pill-gray   { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid rgba(148,163,184,0.2); }
+
+    /* Actions */
+    .action-group { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+    .action-btn {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); display: grid; place-items: center;
+      cursor: pointer; font-size: 0.8rem;
+      transition: all var(--transition); text-decoration: none;
+    }
+    .action-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .action-btn.green:hover { color: var(--green); border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.1); }
+    .action-btn.red:hover { color: var(--red); border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); }
+    .action-btn.blue:hover { color: var(--blue); border-color: rgba(59,130,246,0.4); background: var(--blue-glow); }
+
+    /* Pagination */
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 12px;
+    }
+    .page-info { font-size: 0.8rem; color: var(--muted); }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); display: grid; place-items: center;
+      cursor: pointer; font-size: 0.8rem; font-family: var(--ff-body); font-weight: 600;
+      transition: all var(--transition);
+    }
+    .page-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+    .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Empty state */
+    .empty-state {
+      padding: 60px 20px; text-align: center;
+    }
+    .empty-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: var(--surface2); display: grid; place-items: center;
+      font-size: 1.6rem; color: var(--muted2); margin: 0 auto 16px;
+    }
+    .empty-state h3 { font-family: var(--ff-head); margin-bottom: 6px; }
+    .empty-state p { color: var(--muted); font-size: 0.875rem; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px); z-index: 200;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity var(--transition);
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 28px;
+      width: 100%; max-width: 500px;
+      transform: translateY(20px); transition: transform var(--transition);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-family: var(--ff-head); font-size: 1.1rem; font-weight: 700; }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); display: grid; place-items: center;
+      cursor: pointer; font-size: 0.9rem; transition: all var(--transition);
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { margin-bottom: 22px; }
+    .modal-body p { color: var(--muted); font-size: 0.9rem; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* Profile modal */
+    .profile-modal { max-width: 580px; }
+    .profile-hero {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 20px;
+      padding-bottom: 20px; border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 1.1rem; color: #fff;
+    }
+    .profile-meta h3 { font-family: var(--ff-head); font-size: 1rem; margin-bottom: 2px; }
+    .profile-meta span { font-size: 0.8rem; color: var(--muted); }
+    .profile-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .profile-field label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted2); margin-bottom: 4px; display: block; }
+    .profile-field span { font-size: 0.875rem; color: var(--text); }
+    .profile-scores { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .score-chip {
+      flex: 1; min-width: 100px; padding: 12px 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); text-align: center;
+    }
+    .score-chip .val { font-family: var(--ff-head); font-size: 1.3rem; font-weight: 700; }
+    .score-chip .lbl { font-size: 0.7rem; color: var(--muted); }
+
+    /* Toast */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 500;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px 16px;
+      min-width: 280px; max-width: 360px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideInToast 0.3s ease;
+    }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error   { border-left: 3px solid var(--red); }
+    .toast.info    { border-left: 3px solid var(--blue); }
+    .toast-icon { font-size: 1rem; flex-shrink: 0; }
+    .toast.success .toast-icon { color: var(--green); }
+    .toast.error   .toast-icon { color: var(--red); }
+    .toast.info    .toast-icon { color: var(--blue); }
+    .toast-msg { font-size: 0.85rem; flex: 1; }
+    .toast-close { color: var(--muted2); cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+    .toast-close:hover { color: var(--text); }
+    @keyframes slideInToast { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* Skeleton */
+    .skeleton { background: linear-gradient(90deg, var(--surface2) 25%, rgba(255,255,255,0.05) 50%, var(--surface2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .skel-row { display: flex; align-items: center; gap: 14px; padding: 14px 22px; border-bottom: 1px solid var(--border); }
+    .skel-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+    .skel-lines { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+    .skel-line { height: 10px; border-radius: 4px; }
+
+    /* Bulk action bar */
+    .bulk-bar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px;
+      background: var(--blue-glow); border: 1px solid rgba(59,130,246,0.3);
+      border-radius: var(--radius); margin-bottom: 16px;
+      opacity: 0; pointer-events: none; transition: opacity var(--transition);
+    }
+    .bulk-bar.visible { opacity: 1; pointer-events: all; }
+    .bulk-count { font-size: 0.85rem; font-weight: 600; color: var(--blue); flex: 1; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1100px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: none; }
+      .main { margin-left: 0; }
+      .hamburger-btn { display: block; }
+      .sidebar-overlay { display: block; }
+    }
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .content { padding: 16px; }
+      .toolbar-right { width: 100%; }
+      .search-box { max-width: 100%; }
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 49;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+  <a href="admindashboard.html" class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    HireFlow
+  </a>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a href="admindashboard.html" class="nav-item"><i class="fas fa-grid-2"></i> Dashboard</a>
+    <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics</a>
+
+    <div class="nav-section-label">Recruitment</div>
+    <a href="managedrives.html" class="nav-item"><i class="fas fa-bullhorn"></i> Manage Drives</a>
+    <a href="managecandidates.html" class="nav-item active"><i class="fas fa-users"></i> Candidates</a>
+    <a href="manageinterviewers.html" class="nav-item"><i class="fas fa-user-tie"></i> Interviewers</a>
+    <a href="results.html" class="nav-item"><i class="fas fa-trophy"></i> Results</a>
+
+    <div class="nav-section-label">System</div>
+    <a href="organisations.html" class="nav-item"><i class="fas fa-building"></i> Organisations</a>
+    <a href="settings.html" class="nav-item"><i class="fas fa-gear"></i> Settings</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="user-avatar">A</div>
+      <div class="user-info">
+        <div class="user-name">Admin User</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <i class="fas fa-chevron-up" style="color:var(--muted2);font-size:0.7rem;"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<div class="main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <div>
+        <div class="page-title">Manage Candidates</div>
+        <div class="breadcrumb">Admin <span>/ Candidates</span></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="notifications.html" class="icon-btn" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="badge">4</span>
+      </a>
+      <a href="settings.html" class="icon-btn" title="Settings"><i class="fas fa-gear"></i></a>
+    </div>
+  </header>
+
+  <div class="content">
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <!-- Skeleton -->
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+      <div class="stat-card skeleton" style="height:84px;border:none;"></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search candidates by name, email, drive…" />
+      </div>
+      <select class="filter-select" id="filterDrive">
+        <option value="">All Drives</option>
+        <option>Software Engineer 2025</option>
+        <option>Data Analyst</option>
+        <option>Product Manager</option>
+        <option>Marketing Intern</option>
+        <option>Finance Associate</option>
+      </select>
+      <select class="filter-select" id="filterStatus">
+        <option value="">All Statuses</option>
+        <option>Applied</option>
+        <option>Shortlisted</option>
+        <option>Interviewed</option>
+        <option>Selected</option>
+        <option>Rejected</option>
+      </select>
+      <select class="filter-select" id="filterAI">
+        <option value="">AI Score</option>
+        <option value="high">High (75+)</option>
+        <option value="medium">Medium (50–74)</option>
+        <option value="low">Low (&lt;50)</option>
+      </select>
+      <div class="toolbar-right">
+        <button class="btn btn-ghost" id="exportBtn"><i class="fas fa-download"></i> Export</button>
+        <button class="btn btn-primary" onclick="showToast('Shortlisting top candidates…','info')"><i class="fas fa-wand-magic-sparkles"></i> AI Shortlist</button>
+      </div>
+    </div>
+
+    <!-- Bulk bar -->
+    <div class="bulk-bar" id="bulkBar">
+      <span class="bulk-count" id="bulkCount">0 selected</span>
+      <button class="btn btn-success btn-sm" onclick="bulkAction('shortlist')"><i class="fas fa-check"></i> Shortlist</button>
+      <button class="btn btn-danger btn-sm" onclick="bulkAction('reject')"><i class="fas fa-times"></i> Reject</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearSelection()"><i class="fas fa-x"></i> Clear</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <div class="table-title">All Candidates</div>
+          <div class="table-count" id="tableCount"></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" class="cb" id="selectAll" /></th>
+              <th>Candidate</th>
+              <th>Drive</th>
+              <th>ATS Score</th>
+              <th>AI Match</th>
+              <th>Status</th>
+              <th>Applied</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="candidateTableBody">
+            <!-- Skeleton rows -->
+            <tr><td colspan="8">
+              <div class="skel-row"><div class="skeleton skel-avatar"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:40%"></div><div class="skeleton skel-line" style="width:25%"></div></div></div>
+            </td></tr>
+            <tr><td colspan="8">
+              <div class="skel-row"><div class="skeleton skel-avatar"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:55%"></div><div class="skeleton skel-line" style="width:30%"></div></div></div>
+            </td></tr>
+            <tr><td colspan="8">
+              <div class="skel-row"><div class="skeleton skel-avatar"></div><div class="skel-lines"><div class="skeleton skel-line" style="width:35%"></div><div class="skeleton skel-line" style="width:20%"></div></div></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="paginationBar">
+        <div class="page-info" id="pageInfo"></div>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Profile Modal ── -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal profile-modal">
+    <div class="modal-header">
+      <div class="modal-title">Candidate Profile</div>
+      <button class="modal-close" onclick="closeModal('profileModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="profileModalBody"><!-- filled by JS --></div>
+    <div class="modal-footer">
+      <a href="resumeviewer.html" class="btn btn-ghost"><i class="fas fa-file-pdf"></i> View Resume</a>
+      <button class="btn btn-success" id="profileShortlistBtn"><i class="fas fa-check"></i> Shortlist</button>
+      <button class="btn btn-danger" id="profileRejectBtn"><i class="fas fa-times"></i> Reject</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Modal ── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="confirmTitle">Confirm Action</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body"><p id="confirmMsg"></p></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-primary" id="confirmOkBtn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ── -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  /* ══ DATA ══ */
+  const avatarColors = ['#3B82F6','#06B6D4','#8B5CF6','#EC4899','#F59E0B','#22C55E','#EF4444','#F97316'];
+  
+  let candidates = [];
+  
+  
+  
+  // const candidates = [
+  //   { id:1, name:'Priya Sharma', email:'priya.sharma@mit.edu', drive:'Software Engineer 2025', ats:88, ai:91, status:'Shortlisted', applied:'12 Jun 2025', skills:['Python','React','Node.js'], cgpa:'8.9', college:'MIT Manipal', year:'Final Year' },
+  //   { id:2, name:'Rohan Verma', email:'rohan.v@iit.ac.in', drive:'Software Engineer 2025', ats:74, ai:78, status:'Applied', applied:'13 Jun 2025', skills:['Java','Spring Boot','SQL'], cgpa:'8.2', college:'IIT Bombay', year:'Final Year' },
+  //   { id:3, name:'Ananya Krishnan', email:'ananya.k@vit.edu', drive:'Data Analyst', ats:92, ai:95, status:'Selected', applied:'10 Jun 2025', skills:['Python','Tableau','ML'], cgpa:'9.1', college:'VIT Vellore', year:'Final Year' },
+  //   { id:4, name:'Vikram Singh', email:'vikram.s@bits.ac.in', drive:'Product Manager', ats:61, ai:65, status:'Interviewed', applied:'11 Jun 2025', skills:['Figma','Analytics','Agile'], cgpa:'7.8', college:'BITS Pilani', year:'Final Year' },
+  //   { id:5, name:'Sneha Patel', email:'sneha.p@nit.ac.in', drive:'Marketing Intern', ats:55, ai:58, status:'Rejected', applied:'09 Jun 2025', skills:['Content','SEO','Canva'], cgpa:'7.4', college:'NIT Surat', year:'3rd Year' },
+  //   { id:6, name:'Arjun Mehta', email:'arjun.m@dtu.ac.in', drive:'Software Engineer 2025', ats:82, ai:86, status:'Shortlisted', applied:'14 Jun 2025', skills:['C++','Golang','Docker'], cgpa:'8.6', college:'DTU Delhi', year:'Final Year' },
+  //   { id:7, name:'Kavya Reddy', email:'kavya.r@uoh.ac.in', drive:'Finance Associate', ats:79, ai:81, status:'Applied', applied:'15 Jun 2025', skills:['Excel','CFA','Tally'], cgpa:'8.0', college:'Univ. of Hyderabad', year:'Final Year' },
+  //   { id:8, name:'Siddharth Roy', email:'siddharth.r@jadavpur.edu', drive:'Software Engineer 2025', ats:67, ai:70, status:'Applied', applied:'16 Jun 2025', skills:['JavaScript','Vue','Firebase'], cgpa:'7.9', college:'Jadavpur University', year:'Final Year' },
+  //   { id:9, name:'Neha Gupta', email:'neha.g@amity.edu', drive:'Data Analyst', ats:85, ai:89, status:'Shortlisted', applied:'10 Jun 2025', skills:['R','SQL','PowerBI'], cgpa:'8.7', college:'Amity University', year:'Final Year' },
+  //   { id:10, name:'Rahul Das', email:'rahul.d@cu.ac.in', drive:'Product Manager', ats:72, ai:75, status:'Interviewed', applied:'12 Jun 2025', skills:['JIRA','Research','UX'], cgpa:'8.1', college:'Calcutta University', year:'Final Year' },
+  //   { id:11, name:'Meera Joshi', email:'meera.j@symbiosis.edu', drive:'Marketing Intern', ats:63, ai:66, status:'Applied', applied:'17 Jun 2025', skills:['Social Media','Branding','Analytics'], cgpa:'7.6', college:'Symbiosis', year:'3rd Year' },
+  //   { id:12, name:'Karan Malhotra', email:'karan.m@manipal.edu', drive:'Finance Associate', ats:77, ai:80, status:'Shortlisted', applied:'13 Jun 2025', skills:['Finance','Modelling','Excel'], cgpa:'8.3', college:'Manipal University', year:'Final Year' },
+  // ];
+
+  const PAGE_SIZE = 8;
+  let currentPage = 1;
+  let filtered = [...candidates];
+  let selected = new Set();
+  let pendingAction = null;
+
+  function getInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+  }
+  function getColor(id) { return avatarColors[id % avatarColors.length]; }
+  function scoreColor(v) { return v>=80?'var(--green)':v>=60?'var(--yellow)':'var(--red)'; }
+  function statusPill(s) {
+    const map = { Applied:'pill-gray', Shortlisted:'pill-blue', Interviewed:'pill-yellow', Selected:'pill-green', Rejected:'pill-red' };
+    return `<span class="pill ${map[s]||'pill-gray'}">${s}</span>`;
+  }
+  function scoreBar(v) {
+    return `<div class="score-wrap"><div class="score-bar-track"><div class="score-bar-fill" style="width:${v}%;background:${scoreColor(v)};"></div></div><span class="score-val" style="color:${scoreColor(v)};">${v}%</span></div>`;
+  }
+
+
+  async function loadCandidates() {
+    try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch("http://localhost:5000/api/applications", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+
+        candidates = data.applications.map(app => ({
+            id: app.id,
+            name: app.user.name,
+            email: app.user.email,
+            drive: app.drive.title,
+            ats: app.aiScore ?? 0,
+            ai: app.aiScore ?? 0,
+            interview: app.interviewScore ?? 0,
+            status: app.status,
+            applied: new Date(app.drive.createdAt).toLocaleDateString()
+        }));
+
+        filtered = [...candidates];
+
+        renderStats();
+        renderTable();
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+  /* ── Stats ── */
+  function renderStats() {
+    const total = candidates.length;
+    const shortlisted = candidates.filter(c => c.status==='Shortlisted'||c.status==='Selected').length;
+    const selected2 = candidates.filter(c => c.status==='Selected').length;
+    const rejected = candidates.filter(c => c.status==='Rejected').length;
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-num">${total}</div><div class="stat-label">Total Candidates</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-list-check"></i></div><div><div class="stat-num">${shortlisted}</div><div class="stat-label">Shortlisted</div></div></div>
+      <div class="stat-card"><div class="stat-icon green"><i class="fas fa-trophy"></i></div><div><div class="stat-num">${selected2}</div><div class="stat-label">Selected</div></div></div>
+      <div class="stat-card"><div class="stat-icon red"><i class="fas fa-xmark"></i></div><div><div class="stat-num">${rejected}</div><div class="stat-label">Rejected</div></div></div>
+    `;
+  }
+
+  /* ── Table ── */
+  function renderTable() {
+    const start = (currentPage-1)*PAGE_SIZE;
+    const page = filtered.slice(start, start+PAGE_SIZE);
+    const tbody = document.getElementById('candidateTableBody');
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon"><i class="fas fa-users-slash"></i></div><h3>No candidates found</h3><p>Try adjusting your search or filters.</p></div></td></tr>`;
+      document.getElementById('tableCount').textContent = '0 results';
+    } else {
+      tbody.innerHTML = page.map(c => `
+        <tr>
+          <td><input type="checkbox" class="cb row-cb" data-id="${c.id}" ${selected.has(c.id)?'checked':''} /></td>
+          <td><div class="cand-cell"><div class="cand-avatar" style="background:${getColor(c.id)}">${getInitials(c.name)}</div><div><div class="cand-name">${c.name}</div><div class="cand-email">${c.email}</div></div></div></td>
+          <td><span style="font-size:0.8rem;color:var(--muted);">${c.drive}</span></td>
+          <td>${scoreBar(c.ats)}</td>
+          <td>${scoreBar(c.ai)}</td>
+          <td>${statusPill(c.status)}</td>
+          <td><span style="font-size:0.8rem;color:var(--muted);">${c.applied}</span></td>
+          <td>
+            <div class="action-group">
+              <button class="action-btn blue" title="View Profile" onclick="openProfile(${c.id})"><i class="fas fa-eye"></i></button>
+              <a href="resumeviewer.html" class="action-btn" title="View Resume"><i class="fas fa-file-pdf"></i></a>
+              <button class="action-btn green" title="Shortlist" onclick="quickAction(${c.id},'shortlist')"><i class="fas fa-check"></i></button>
+              <button class="action-btn red" title="Reject" onclick="quickAction(${c.id},'reject')"><i class="fas fa-times"></i></button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      document.getElementById('tableCount').textContent = `${filtered.length} candidate${filtered.length!==1?'s':''}`;
+    }
+
+    // Checkbox listeners
+    document.querySelectorAll('.row-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const id = parseInt(cb.dataset.id);
+        cb.checked ? selected.add(id) : selected.delete(id);
+        updateBulkBar();
+      });
+    });
+
+    renderPagination();
+  }
+
+  /* ── Pagination ── */
+  function renderPagination() {
+    const total = filtered.length;
+    const pages = Math.ceil(total/PAGE_SIZE);
+    const start = (currentPage-1)*PAGE_SIZE+1;
+    const end = Math.min(currentPage*PAGE_SIZE, total);
+    document.getElementById('pageInfo').textContent = total ? `Showing ${start}–${end} of ${total}` : '';
+
+    const btns = document.getElementById('pageBtns');
+    let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+    for (let i=1;i<=pages;i++) html += `<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages||pages===0?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+    btns.innerHTML = html;
+  }
+  function goPage(p) {
+    const pages = Math.ceil(filtered.length/PAGE_SIZE);
+    if (p<1||p>pages) return;
+    currentPage=p; renderTable();
+  }
+
+  /* ── Filter ── */
+  function applyFilters() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const drive = document.getElementById('filterDrive').value;
+    const status = document.getElementById('filterStatus').value;
+    const ai = document.getElementById('filterAI').value;
+    filtered = candidates.filter(c => {
+      const matchQ = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.drive.toLowerCase().includes(q);
+      const matchD = !drive || c.drive===drive;
+      const matchS = !status || c.status===status;
+      const matchAI = !ai || (ai==='high'&&c.ai>=75)||(ai==='medium'&&c.ai>=50&&c.ai<75)||(ai==='low'&&c.ai<50);
+      return matchQ&&matchD&&matchS&&matchAI;
+    });
+    currentPage=1; renderTable();
+  }
+  ['searchInput','filterDrive','filterStatus','filterAI'].forEach(id => {
+    document.getElementById(id).addEventListener('input', applyFilters);
+    document.getElementById(id).addEventListener('change', applyFilters);
+  });
+
+  /* ── Select all ── */
+  document.getElementById('selectAll').addEventListener('change', e => {
+    const start=(currentPage-1)*PAGE_SIZE;
+    const page=filtered.slice(start,start+PAGE_SIZE);
+    page.forEach(c => e.target.checked ? selected.add(c.id) : selected.delete(c.id));
+    renderTable(); updateBulkBar();
+  });
+
+  function updateBulkBar() {
+    const bar = document.getElementById('bulkBar');
+    document.getElementById('bulkCount').textContent = `${selected.size} selected`;
+    bar.classList.toggle('visible', selected.size>0);
+  }
+  function clearSelection() { selected.clear(); updateBulkBar(); renderTable(); }
+
+  /* ── Profile Modal ── */
+  function openProfile(id) {
+    const c = candidates.find(x=>x.id===id);
+    if (!c) return;
+    document.getElementById('profileModalBody').innerHTML = `
+      <div class="profile-hero">
+        <div class="profile-avatar" style="background:${getColor(c.id)};width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:1.1rem;color:#fff;">${getInitials(c.name)}</div>
+        <div class="profile-meta"><h3>${c.name}</h3><span>${c.email}</span></div>
+        <div style="margin-left:auto;">${statusPill(c.status)}</div>
+      </div>
+      <div class="profile-grid">
+        <div class="profile-field"><label>College</label><span>${c.college}</span></div>
+        <div class="profile-field"><label>Year</label><span>${c.year}</span></div>
+        <div class="profile-field"><label>CGPA</label><span>${c.cgpa}</span></div>
+        <div class="profile-field"><label>Applied On</label><span>${c.applied}</span></div>
+        <div class="profile-field" style="grid-column:1/-1;"><label>Drive</label><span>${c.drive}</span></div>
+        <div class="profile-field" style="grid-column:1/-1;"><label>Skills</label><span>${c.skills.map(s=>`<span class="pill pill-blue" style="margin:2px;">${s}</span>`).join(' ')}</span></div>
+      </div>
+      <div class="profile-scores">
+        <div class="score-chip"><div class="val" style="color:${scoreColor(c.ats)}">${c.ats}%</div><div class="lbl">ATS Score</div></div>
+        <div class="score-chip"><div class="val" style="color:${scoreColor(c.ai)}">${c.ai}%</div><div class="lbl">AI Match</div></div>
+        <div class="score-chip"><div class="val" style="color:var(--cyan)">8.4</div><div class="lbl">Interview Score</div></div>
+      </div>
+    `;
+    document.getElementById('profileShortlistBtn').onclick = () => { closeModal('profileModal'); quickAction(id,'shortlist'); };
+    document.getElementById('profileRejectBtn').onclick = () => { closeModal('profileModal'); quickAction(id,'reject'); };
+    openModal('profileModal');
+  }
+
+  /* ── Quick Action ── */
+  function quickAction(id, action) {
+    const c = candidates.find(x=>x.id===id);
+    pendingAction = { id, action };
+    document.getElementById('confirmTitle').textContent = action==='shortlist' ? 'Shortlist Candidate' : 'Reject Candidate';
+    document.getElementById('confirmMsg').textContent = `Are you sure you want to ${action} ${c.name}?`;
+    document.getElementById('confirmOkBtn').className = `btn ${action==='shortlist'?'btn-success':'btn-danger'}`;
+    document.getElementById('confirmOkBtn').onclick = executeAction;
+    openModal('confirmModal');
+  }
+async function executeAction() {
+
+    if (!pendingAction) return;
+
+    const { id, action } = pendingAction;
+
+    const token = localStorage.getItem("token");
+
+    if (action === "reject") {
+
+        try {
+
+            const response = await fetch(
+                `http://localhost:5000/api/applications/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message);
+            }
+
+            closeModal("confirmModal");
+
+            showToast("Candidate deleted successfully.", "success");
+
+            loadCandidates();
+
+            return;
+
+        } catch (err) {
+
+            showToast(err.message, "error");
+
+            return;
+        }
+    }
+
+    const c = candidates.find(x => x.id === id);
+
+    c.status = "Shortlisted";
+
+    closeModal("confirmModal");
+
+    applyFilters();
+
+    showToast(`${c.name} has been shortlisted.`, "success");
+}
+
+  function bulkAction(action) {
+    const names = [...selected].map(id => candidates.find(x=>x.id===id)?.name).filter(Boolean);
+    pendingAction = { ids:[...selected], action };
+    document.getElementById('confirmTitle').textContent = `${action==='shortlist'?'Shortlist':'Reject'} ${selected.size} Candidates`;
+    document.getElementById('confirmMsg').textContent = `This will ${action} ${names.slice(0,3).join(', ')}${names.length>3?` and ${names.length-3} more`:''}.`;
+    document.getElementById('confirmOkBtn').className = `btn ${action==='shortlist'?'btn-success':'btn-danger'}`;
+    document.getElementById('confirmOkBtn').onclick = () => {
+      pendingAction.ids.forEach(id => {
+        const c = candidates.find(x=>x.id===id);
+        if (c) c.status = action==='shortlist' ? 'Shortlisted' : 'Rejected';
+      });
+      closeModal('confirmModal');
+      clearSelection();
+      applyFilters();
+      showToast(`${pendingAction.ids.length} candidates ${action==='shortlist'?'shortlisted':'rejected'}.`, action==='shortlist'?'success':'error');
+    };
+    openModal('confirmModal');
+  }
+
+  /* ── Modal helpers ── */
+  function openModal(id) { document.getElementById(id).classList.add('open'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target===o) o.classList.remove('open'); });
+  });
+
+  /* ── Export ── */
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    showToast('Exporting candidate data as CSV…','info');
+  });
+
+  /* ── Toast ── */
+  function showToast(msg, type='info') {
+    const icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-circle-info' };
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<i class="fas ${icons[type]} toast-icon"></i><span class="toast-msg">${msg}</span><i class="fas fa-times toast-close" onclick="this.parentElement.remove()"></i>`;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  /* ── Sidebar mobile ── */
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').style.display='block';
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').style.display='none';
+  });
+
+  /* ── Init ── */
+  loadCandidates();
+</script>
+</body>
+</html>

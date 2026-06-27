@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resume Analysis — HireFlow</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:        #0A0F1E;
+    --bg2:       #0D1426;
+    --surface:   #111827;
+    --surface2:  #1a2235;
+    --border:    rgba(255,255,255,0.08);
+    --blue:      #3B82F6;
+    --blue-dark: #2563EB;
+    --blue-glow: rgba(59,130,246,0.18);
+    --cyan:      #06B6D4;
+    --green:     #22C55E;
+    --amber:     #F59E0B;
+    --text:      #F1F5F9;
+    --muted:     #94A3B8;
+    --muted2:    #64748B;
+    --white:     #FFFFFF;
+    --red:       #EF4444;
+    --ff-head:   'Space Grotesk', sans-serif;
+    --ff-body:   'Inter', sans-serif;
+    --radius:    12px;
+    --radius-lg: 20px;
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--ff-body); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1,h2,h3,h4{font-family:var(--ff-head); font-weight:700; line-height:1.2; color:var(--text);}
+  p{color:var(--muted);}
+  a{color:inherit;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:8px;}
+
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border-radius:var(--radius); font-family:var(--ff-body); font-size:0.9rem; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:all var(--transition); white-space:nowrap; }
+  .btn-primary{ background:var(--blue); color:#fff; box-shadow:0 0 24px rgba(59,130,246,0.35); }
+  .btn-primary:hover{ background:var(--blue-dark); box-shadow:0 0 36px rgba(59,130,246,0.55); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.04); transform:translateY(-2px); }
+  .btn-sm{ padding:7px 14px; font-size:0.8rem; }
+
+  /* ══ APP SHELL ══ */
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{ width:264px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; transition:transform 0.3s ease; }
+  .sidebar-logo{ display:flex; align-items:center; gap:9px; padding:22px 22px; font-family:var(--ff-head); font-size:1.2rem; font-weight:700; color:var(--white); text-decoration:none; border-bottom:1px solid var(--border); }
+  .sidebar-nav{ flex:1; overflow-y:auto; padding:18px 14px; display:flex; flex-direction:column; gap:3px; }
+  .nav-section-label{ font-size:0.68rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted2); padding:14px 12px 6px; }
+  .side-link{ display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:500; transition:all var(--transition); position:relative; }
+  .side-link i{ width:18px; text-align:center; font-size:0.95rem; }
+  .side-link:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
+  .side-link.active{ background:var(--blue-glow); color:var(--blue); }
+  .side-link.active::before{ content:''; position:absolute; left:-14px; top:50%; transform:translateY(-50%); width:3px; height:18px; background:var(--blue); border-radius:4px; }
+  .side-badge{ margin-left:auto; font-size:0.65rem; font-weight:700; background:var(--red); color:#fff; border-radius:100px; padding:1px 7px; min-width:18px; text-align:center; }
+  .sidebar-foot{ padding:14px; border-top:1px solid var(--border); }
+  .side-user{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; }
+  .side-avatar{ width:36px; height:36px; border-radius:50%; background:var(--blue-glow); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; border:1px solid rgba(59,130,246,0.3); }
+  .side-user-info{ flex:1; min-width:0; }
+  .side-user-name{ font-size:0.84rem; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .side-user-role{ font-size:0.72rem; color:var(--muted2); }
+  .side-logout{ color:var(--muted); cursor:pointer; padding:6px; border-radius:8px; transition:all var(--transition); }
+  .side-logout:hover{ color:var(--red); background:rgba(239,68,68,0.1); }
+  .main{ flex:1; margin-left:264px; min-width:0; }
+  .topbar{ height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 32px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(10,15,30,0.85); backdrop-filter:blur(16px); z-index:40; }
+  .topbar-title h1{ font-size:1.3rem; }
+  .topbar-title .crumb{ font-size:0.78rem; color:var(--muted2); margin-top:2px; }
+  .menu-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer; }
+  .topbar-right{ display:flex; align-items:center; gap:16px; }
+  .icon-btn{ width:38px; height:38px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; transition:all var(--transition); position:relative; text-decoration:none; }
+  .icon-btn:hover{ color:var(--text); border-color:rgba(255,255,255,0.2); }
+  .icon-dot{ position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--red); border:1.5px solid var(--surface); }
+  .content{ padding:32px; max-width:1280px; }
+  @media (max-width:1024px){ .sidebar{ transform:translateX(-100%); } .sidebar.open{ transform:translateX(0); box-shadow:0 0 60px rgba(0,0,0,0.6); } .main{ margin-left:0; } .menu-toggle{ display:flex; align-items:center; } .content{ padding:22px; } }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:45; }
+  .overlay.show{ display:block; }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px; margin-bottom:24px; }
+  .card-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; gap:12px; flex-wrap:wrap; }
+  .card-head h2{ font-size:1.05rem; display:flex; align-items:center; gap:10px; }
+  .card-head h2 i{ color:var(--blue); font-size:0.95rem; }
+  .card-head p{ font-size:0.82rem; margin-top:3px; }
+
+  /* Top grid: resume preview + score gauge */
+  .top-grid{ display:grid; grid-template-columns:1fr 1.4fr; gap:24px; align-items:start; }
+
+  .resume-preview-card{ text-align:center; }
+  .resume-thumb{
+    background:#fff; color:#222; border-radius:10px; aspect-ratio:3/4; padding:18px;
+    font-size:0.55rem; line-height:1.5; overflow:hidden; text-align:left; box-shadow:0 20px 50px rgba(0,0,0,0.5);
+    border:1px solid var(--border);
+  }
+  .resume-thumb .rname{ font-weight:700; font-size:0.75rem; margin-bottom:2px; }
+  .resume-thumb .rrole{ color:#3B82F6; font-size:0.6rem; margin-bottom:10px; }
+  .resume-thumb .rline{ height:4px; background:#e5e7eb; border-radius:2px; margin-bottom:6px; }
+  .resume-thumb .rline.w60{ width:60%; }
+  .resume-thumb .rline.w80{ width:80%; }
+  .resume-thumb .rline.w40{ width:40%; }
+  .resume-thumb .rsec{ font-weight:700; font-size:0.62rem; color:#3B82F6; margin:12px 0 6px; text-transform:uppercase; letter-spacing:0.05em; }
+  .resume-meta-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
+
+  .gauge-row{ display:flex; align-items:center; gap:28px; flex-wrap:wrap; }
+  .gauge-wrap{ position:relative; width:170px; height:170px; flex-shrink:0; }
+  .gauge-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .gauge-num{ font-family:var(--ff-head); font-size:2.1rem; font-weight:700; color:var(--blue); }
+  .gauge-sub{ font-size:0.72rem; color:var(--muted2); margin-top:2px; }
+  .gauge-breakdown{ flex:1; min-width:200px; display:flex; flex-direction:column; gap:12px; }
+  .gb-row{ display:flex; align-items:center; gap:10px; }
+  .gb-label{ width:120px; font-size:0.8rem; color:var(--muted); flex-shrink:0; }
+  .gb-bar-bg{ flex:1; height:7px; background:rgba(255,255,255,0.07); border-radius:100px; overflow:hidden; }
+  .gb-bar{ height:100%; border-radius:100px; background:linear-gradient(90deg,var(--blue),var(--cyan)); transition:width 0.8s ease; }
+  .gb-val{ width:38px; text-align:right; font-size:0.8rem; font-weight:600; color:var(--text); flex-shrink:0; }
+
+  .recommendation-banner{ display:flex; align-items:center; gap:16px; padding:18px 22px; border-radius:var(--radius); margin-top:20px; }
+  .recommendation-banner.strong{ background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); }
+  .recommendation-banner i{ font-size:1.6rem; color:var(--green); }
+  .recommendation-banner h4{ font-size:0.95rem; margin-bottom:3px; }
+  .recommendation-banner p{ font-size:0.82rem; }
+
+  /* Skills grid */
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .tag-list{ display:flex; flex-wrap:wrap; gap:9px; }
+  .tag{ font-size:0.8rem; font-weight:600; padding:6px 13px; border-radius:100px; display:flex; align-items:center; gap:6px; }
+  .tag-have{ background:rgba(34,197,94,0.12); color:#22C55E; border:1px solid rgba(34,197,94,0.3); }
+  .tag-missing{ background:rgba(239,68,68,0.1); color:#EF4444; border:1px solid rgba(239,68,68,0.28); }
+
+  .sw-list{ display:flex; flex-direction:column; gap:12px; }
+  .sw-item{ display:flex; align-items:flex-start; gap:12px; }
+  .sw-item i{ margin-top:2px; flex-shrink:0; width:18px; }
+  .sw-item.strength i{ color:var(--green); }
+  .sw-item.weakness i{ color:var(--amber); }
+  .sw-item p{ font-size:0.86rem; color:var(--text); margin:0; }
+
+  .suggestion-item{ display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); }
+  .suggestion-item:last-child{ border-bottom:none; padding-bottom:0; }
+  .suggestion-num{ width:26px; height:26px; border-radius:50%; background:var(--blue-glow); color:var(--blue); font-family:var(--ff-head); font-weight:700; font-size:0.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .suggestion-item p{ font-size:0.86rem; color:var(--text); margin:0; }
+
+  /* Keyword chart canvas card */
+  canvas{ max-width:100%; display:block; }
+
+  @media (max-width:1024px){ .top-grid, .two-col{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      HireFlow
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Candidate</div>
+      <a href="applicantdashboard.html" class="side-link"><i class="fa-solid fa-grid-2"></i> Dashboard</a>
+      <a href="applytodrive.html" class="side-link"><i class="fa-solid fa-paper-plane"></i> Apply to Drive</a>
+      <a href="applicationhistory.html" class="side-link"><i class="fa-solid fa-clipboard-list"></i> My Applications</a>
+      <a href="resumeanalysis.html" class="side-link active"><i class="fa-solid fa-file-waveform"></i> Resume Analysis</a>
+      <a href="notifications.html" class="side-link"><i class="fa-solid fa-bell"></i> Notifications <span class="side-badge">3</span></a>
+      <div class="nav-section-label">Account</div>
+      <a href="profile.html" class="side-link"><i class="fa-solid fa-user"></i> My Profile</a>
+      <a href="settings.html" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="side-user">
+        <div class="side-avatar">RS</div>
+        <div class="side-user-info">
+          <div class="side-user-name">Rahul Sharma</div>
+          <div class="side-user-role">Candidate</div>
+        </div>
+        <a href="login.html" class="side-logout" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Resume Analysis</h1>
+          <div class="crumb">Candidate / Resume Analysis</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="notifications.html" class="icon-btn"><i class="fa-solid fa-bell"></i><span class="icon-dot"></span></a>
+        <div class="side-avatar" style="cursor:pointer;">RS</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="top-grid">
+        <!-- Resume preview -->
+        <div class="card resume-preview-card">
+          <div class="card-head" style="justify-content:center;text-align:center;">
+            <div style="width:100%;"><h2 style="justify-content:center;"><i class="fa-solid fa-file-lines"></i> Resume Preview</h2></div>
+          </div>
+          <div class="resume-thumb">
+
+  <div class="rname" id="resumeName">
+    Resume
+  </div>
+
+  <div class="rrole" id="resumeRole">
+    AI Analysis
+  </div>
+
+
+  <div class="rsec">Education</div>
+  <div class="rline w80"></div>
+  <div class="rline w60"></div>
+
+
+  <div class="rsec">Experience</div>
+  <div class="rline w80"></div>
+  <div class="rline w60"></div>
+  <div class="rline w40"></div>
+
+
+  <div class="rsec">Projects</div>
+  <div class="rline w60"></div>
+  <div class="rline w80"></div>
+
+
+  <div class="rsec">Skills</div>
+  <div class="rline w40"></div>
+
+</div>
+          <div class="resume-meta-row">
+            <a href="resumeviewer.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-eye"></i> Full View</a>
+            <a href="#" class="btn btn-primary btn-sm" id="downloadBtn"><i class="fa-solid fa-download"></i> Download</a>
+          </div>
+        </div>
+
+        <!-- ATS score gauge -->
+        <div class="card">
+          <div class="card-head">
+            <div><h2><i class="fa-solid fa-gauge-high"></i> ATS Score</h2><p>How well your resume parses against standard ATS systems</p></div>
+          </div>
+          <div class="gauge-row">
+            <div class="gauge-wrap">
+              <canvas id="atsGauge" width="170" height="170"></canvas>
+              <div class="gauge-center">
+                <div class="gauge-num">86</div>
+                <div class="gauge-sub">out of 100</div>
+              </div>
+            </div>
+            <div class="gauge-breakdown">
+              <div class="gb-row"><div class="gb-label">Formatting</div><div class="gb-bar-bg"><div class="gb-bar" data-w="92"></div></div><div class="gb-val">92%</div></div>
+              <div class="gb-row"><div class="gb-label">Keyword Match</div><div class="gb-bar-bg"><div class="gb-bar" data-w="78"></div></div><div class="gb-val">78%</div></div>
+              <div class="gb-row"><div class="gb-label">Section Structure</div><div class="gb-bar-bg"><div class="gb-bar" data-w="95"></div></div><div class="gb-val">95%</div></div>
+              <div class="gb-row"><div class="gb-label">Readability</div><div class="gb-bar-bg"><div class="gb-bar" data-w="84"></div></div><div class="gb-val">84%</div></div>
+              <div class="gb-row"><div class="gb-label">Experience Depth</div><div class="gb-bar-bg"><div class="gb-bar" data-w="80"></div></div><div class="gb-val">80%</div></div>
+            </div>
+          </div>
+          <div class="recommendation-banner strong">
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <h4>Overall Recommendation: Strong Match</h4>
+              <p>This resume is well-structured and likely to clear ATS screening for SDE / Full-Stack roles. Address the missing skills below to push the score above 90.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills extracted / missing -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-check-double"></i> Skills Extracted</h2><p>Detected from your resume content</p></div></div>
+          <div class="tag-list">
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> JavaScript</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> React.js</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> Node.js</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> Python</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> SQL</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> Git</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> REST APIs</span>
+            <span class="tag tag-have"><i class="fa-solid fa-check"></i> Data Structures</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-triangle-exclamation"></i> Missing Skills</h2><p>Commonly required for SDE roles, not found in resume</p></div></div>
+          <div class="tag-list">
+            <span class="tag tag-missing"><i class="fa-solid fa-xmark"></i> Docker</span>
+            <span class="tag tag-missing"><i class="fa-solid fa-xmark"></i> AWS / Cloud</span>
+            <span class="tag tag-missing"><i class="fa-solid fa-xmark"></i> System Design</span>
+            <span class="tag tag-missing"><i class="fa-solid fa-xmark"></i> TypeScript</span>
+            <span class="tag tag-missing"><i class="fa-solid fa-xmark"></i> CI/CD</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strengths / weaknesses -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-bolt"></i> Strengths</h2></div></div>
+          <div class="sw-list">
+            <div class="sw-item strength"><i class="fa-solid fa-circle-check"></i><p>Clear, quantified achievements (e.g. "reduced report time by 40%")</p></div>
+            <div class="sw-item strength"><i class="fa-solid fa-circle-check"></i><p>Consistent reverse-chronological formatting, easy for ATS to parse</p></div>
+            <div class="sw-item strength"><i class="fa-solid fa-circle-check"></i><p>Strong project section with measurable impact and tech stack listed</p></div>
+            <div class="sw-item strength"><i class="fa-solid fa-circle-check"></i><p>Relevant internship directly aligned with applied roles</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-circle-exclamation"></i> Weaknesses</h2></div></div>
+          <div class="sw-list">
+            <div class="sw-item weakness"><i class="fa-solid fa-triangle-exclamation"></i><p>No cloud platform experience listed (AWS, GCP, or Azure)</p></div>
+            <div class="sw-item weakness"><i class="fa-solid fa-triangle-exclamation"></i><p>Skills section lacks categorisation (languages vs. frameworks vs. tools)</p></div>
+            <div class="sw-item weakness"><i class="fa-solid fa-triangle-exclamation"></i><p>Resume is slightly under one page — could include more project depth</p></div>
+            <div class="sw-item weakness"><i class="fa-solid fa-triangle-exclamation"></i><p>No links to GitHub or portfolio found in the header</p></div>
+          </div>
+        </div>
+      </div>
+      <!-- Resume History -->
+
+<div class="card">
+
+<div class="card-head">
+<div>
+<h2>
+<i class="fa-solid fa-clock"></i>
+Resume History
+</h2>
+
+<p>Your previous resume analyses</p>
+
+</div>
+</div>
+
+
+<div id="history"></div>
+
+
+</div>
+      <!-- AI Suggestions + Keyword chart -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-wand-magic-sparkles"></i> AI Suggestions</h2></div></div>
+          <div>
+            <div class="suggestion-item"><div class="suggestion-num">1</div><p>Add a "Tech Stack" line under each project to improve keyword density for ATS scanning.</p></div>
+            <div class="suggestion-item"><div class="suggestion-num">2</div><p>Include at least one cloud or DevOps keyword (Docker, AWS, CI/CD) if you've used them in any project.</p></div>
+            <div class="suggestion-item"><div class="suggestion-num">3</div><p>Add GitHub and LinkedIn links near your name for faster recruiter verification.</p></div>
+            <div class="suggestion-item"><div class="suggestion-num">4</div><p>Quantify the hackathon project with a metric (accuracy %, dataset size, or users impacted).</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><h2><i class="fa-solid fa-chart-column"></i> Keywords Matched</h2><p>Against the SDE Intern 2026 job description</p></div></div>
+          <canvas id="keywordChart" width="460" height="260"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+
+  document.getElementById('downloadBtn').addEventListener('click', e => { e.preventDefault(); alert('Downloading Rahul_Sharma_Resume_2026.pdf'); });
+
+  /* Animate breakdown bars */
+  document.querySelectorAll('.gb-bar').forEach(bar => {
+    const w = bar.dataset.w;
+    requestAnimationFrame(() => { bar.style.width = w + '%'; });
+  });
+
+  /* ── ATS Gauge: pure canvas arc ── */
+  function drawGauge(canvasId, score) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const cx = canvas.width / 2, cy = canvas.height / 2, r = 72;
+    const start = Math.PI * 0.75, full = Math.PI * 1.5;
+
+    function colorForScore(s) {
+      if (s >= 80) return '#22C55E';
+      if (s >= 60) return '#F59E0B';
+      return '#EF4444';
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // background track
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, start, start + full);
+    ctx.stroke();
+
+    // animated progress arc
+    let progress = 0;
+    const target = score / 100;
+    const color = colorForScore(score);
+    function animate() {
+      progress += 0.02;
+      if (progress > target) progress = target;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, start, start + full);
+      ctx.stroke();
+
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, start, start + full * progress);
+      ctx.stroke();
+
+      if (progress < target) requestAnimationFrame(animate);
+    }
+    animate();
+  }
+  drawGauge('atsGauge', 86);
+
+  /* ── Keyword bar chart: pure canvas ── */
+  function drawBarChart(canvasId, labels, values, color1, color2) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const padding = { top: 20, right: 14, bottom: 36, left: 14 };
+    const chartW = W - padding.left - padding.right;
+    const chartH = H - padding.top - padding.bottom;
+    const barGap = 18;
+    const barW = (chartW - barGap * (labels.length - 1)) / labels.length;
+    const maxVal = 100;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // gridlines
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (chartH / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(W - padding.right, y);
+      ctx.stroke();
+    }
+
+    labels.forEach((label, i) => {
+      const x = padding.left + i * (barW + barGap);
+      const val = values[i];
+      const barH = (val / maxVal) * chartH;
+      const y = padding.top + chartH - barH;
+
+      const grad = ctx.createLinearGradient(0, y, 0, padding.top + chartH);
+      grad.addColorStop(0, color2);
+      grad.addColorStop(1, color1);
+
+      ctx.fillStyle = grad;
+      const radius = 6;
+      ctx.beginPath();
+      ctx.moveTo(x, y + radius);
+      ctx.arcTo(x, y, x + radius, y, radius);
+      ctx.arcTo(x + barW, y, x + barW, y + radius, radius);
+      ctx.lineTo(x + barW, padding.top + chartH);
+      ctx.lineTo(x, padding.top + chartH);
+      ctx.closePath();
+      ctx.fill();
+
+      // value label
+      ctx.fillStyle = '#F1F5F9';
+      ctx.font = '600 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(val + '%', x + barW / 2, y - 8);
+
+      // x label
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '500 10px Inter, sans-serif';
+      ctx.fillText(label, x + barW / 2, H - 14);
+    });
+  }
+
+  drawBarChart(
+    'keywordChart',
+    ['JavaScript','React','Node.js','SQL','Python','Docker'],
+    [95, 90, 82, 75, 88, 20],
+    '#3B82F6', '#06B6D4'
+  );
+  // LOAD REAL AI ANALYSIS
+
+const analysis = JSON.parse(
+    localStorage.getItem("analysis")
+);
+
+
+if(analysis){
+
+    // ATS SCORE
+    document.querySelector(".gauge-num")
+    .innerHTML = analysis.atsScore;
+
+
+    drawGauge(
+        'atsGauge',
+        analysis.atsScore
+    );
+
+
+    // Missing skills
+    const missing =
+    document.querySelectorAll(
+    ".tag-missing"
+    );
+
+    missing.forEach((el,i)=>{
+        if(analysis.missingSkills[i]){
+            el.innerHTML =
+            `<i class="fa-solid fa-xmark"></i>
+            ${analysis.missingSkills[i]}`;
+        }
+    });
+
+
+
+    // Strengths
+    const strengthBox =
+    document.querySelector(
+    ".sw-item.strength"
+    ).parentElement;
+
+
+    strengthBox.innerHTML =
+    analysis.strengths.map(x=>
+    `
+    <div class="sw-item strength">
+    <i class="fa-solid fa-circle-check"></i>
+    <p>${x}</p>
+    </div>
+    `
+    ).join("");
+
+
+
+    // Weaknesses
+    const weakBox =
+    document.querySelector(
+    ".sw-item.weakness"
+    ).parentElement;
+
+
+    weakBox.innerHTML =
+    analysis.weaknesses.map(x=>
+    `
+    <div class="sw-item weakness">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p>${x}</p>
+    </div>
+    `
+    ).join("");
+
+
+    
+    // Suggestions
+    const sugBox =
+    document.querySelector(
+    ".suggestion-item"
+    ).parentElement;
+
+
+    sugBox.innerHTML =
+    analysis.suggestions.map((x,i)=>
+    `
+    <div class="suggestion-item">
+    <div class="suggestion-num">
+    ${i+1}
+    </div>
+    <p>${x}</p>
+    </div>
+    `
+    ).join("");
+
+}
+async function loadHistory(){
+
+const response = await fetch(
+"http://localhost:5000/api/resume/analysis",
+{
+headers:{
+Authorization:
+`Bearer ${localStorage.getItem("token")}`
+}
+});
+
+
+const data = await response.json();
+
+
+const box =
+document.getElementById("history");
+
+
+box.innerHTML =
+data.map(item => `
+
+<div class="card">
+
+<h3>${item.fileName}</h3>
+
+<p>
+ATS Score:
+${item.atsScore}
+</p>
+
+
+<button
+class="btn btn-primary btn-sm"
+onclick="deleteResume(${item.id})">
+
+Delete
+
+</button>
+
+
+</div>
+
+`).join("");
+
+}
+
+
+loadHistory();
+
+async function deleteResume(id){
+
+const response =
+await fetch(
+
+`http://localhost:5000/api/resume/analysis/${id}`,
+
+{
+method:"DELETE",
+
+headers:{
+Authorization:
+`Bearer ${localStorage.getItem("token")}`
+}
+
+});
+
+
+const result =
+await response.json();
+
+
+if(result.success){
+
+alert("Resume deleted");
+
+loadHistory();
+
+}
+else{
+
+alert("Delete failed");
+
+}
+
+}
+const resumeName =
+localStorage.getItem("resumeName");
+
+
+if(resumeName){
+
+document.getElementById("resumeName")
+.innerText = resumeName;
+
+}
+</script>
+</body>
+</html>

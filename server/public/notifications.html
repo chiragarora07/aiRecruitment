@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notifications — HireFlow</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:        #0A0F1E;
+    --bg2:       #0D1426;
+    --surface:   #111827;
+    --surface2:  #1a2235;
+    --border:    rgba(255,255,255,0.08);
+    --blue:      #3B82F6;
+    --blue-dark: #2563EB;
+    --blue-glow: rgba(59,130,246,0.18);
+    --cyan:      #06B6D4;
+    --green:     #22C55E;
+    --amber:     #F59E0B;
+    --text:      #F1F5F9;
+    --muted:     #94A3B8;
+    --muted2:    #64748B;
+    --white:     #FFFFFF;
+    --red:       #EF4444;
+    --ff-head:   'Space Grotesk', sans-serif;
+    --ff-body:   'Inter', sans-serif;
+    --radius:    12px;
+    --radius-lg: 20px;
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--ff-body); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1,h2,h3,h4{font-family:var(--ff-head); font-weight:700; line-height:1.2; color:var(--text);}
+  p{color:var(--muted);}
+  a{color:inherit;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:8px;}
+
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border-radius:var(--radius); font-family:var(--ff-body); font-size:0.9rem; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:all var(--transition); white-space:nowrap; }
+  .btn-primary{ background:var(--blue); color:#fff; box-shadow:0 0 24px rgba(59,130,246,0.35); }
+  .btn-primary:hover{ background:var(--blue-dark); box-shadow:0 0 36px rgba(59,130,246,0.55); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.04); transform:translateY(-2px); }
+  .btn-sm{ padding:7px 14px; font-size:0.8rem; }
+
+  /* ══ APP SHELL ══ */
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{ width:264px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; transition:transform 0.3s ease; }
+  .sidebar-logo{ display:flex; align-items:center; gap:9px; padding:22px 22px; font-family:var(--ff-head); font-size:1.2rem; font-weight:700; color:var(--white); text-decoration:none; border-bottom:1px solid var(--border); }
+  .sidebar-nav{ flex:1; overflow-y:auto; padding:18px 14px; display:flex; flex-direction:column; gap:3px; }
+  .nav-section-label{ font-size:0.68rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted2); padding:14px 12px 6px; }
+  .side-link{ display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:500; transition:all var(--transition); position:relative; }
+  .side-link i{ width:18px; text-align:center; font-size:0.95rem; }
+  .side-link:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
+  .side-link.active{ background:var(--blue-glow); color:var(--blue); }
+  .side-link.active::before{ content:''; position:absolute; left:-14px; top:50%; transform:translateY(-50%); width:3px; height:18px; background:var(--blue); border-radius:4px; }
+  .side-badge{ margin-left:auto; font-size:0.65rem; font-weight:700; background:var(--red); color:#fff; border-radius:100px; padding:1px 7px; min-width:18px; text-align:center; transition:all var(--transition); }
+  .sidebar-foot{ padding:14px; border-top:1px solid var(--border); }
+  .side-user{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; }
+  .side-avatar{ width:36px; height:36px; border-radius:50%; background:var(--blue-glow); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; border:1px solid rgba(59,130,246,0.3); }
+  .side-user-info{ flex:1; min-width:0; }
+  .side-user-name{ font-size:0.84rem; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .side-user-role{ font-size:0.72rem; color:var(--muted2); }
+  .side-logout{ color:var(--muted); cursor:pointer; padding:6px; border-radius:8px; transition:all var(--transition); }
+  .side-logout:hover{ color:var(--red); background:rgba(239,68,68,0.1); }
+  .main{ flex:1; margin-left:264px; min-width:0; }
+  .topbar{ height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 32px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(10,15,30,0.85); backdrop-filter:blur(16px); z-index:40; }
+  .topbar-title h1{ font-size:1.3rem; }
+  .topbar-title .crumb{ font-size:0.78rem; color:var(--muted2); margin-top:2px; }
+  .menu-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer; }
+  .topbar-right{ display:flex; align-items:center; gap:16px; }
+  .icon-btn{ width:38px; height:38px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; transition:all var(--transition); position:relative; text-decoration:none; }
+  .icon-btn:hover{ color:var(--text); border-color:rgba(255,255,255,0.2); }
+  .icon-dot{ position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--red); border:1.5px solid var(--surface); }
+  .content{ padding:32px; max-width:880px; }
+  @media (max-width:1024px){ .sidebar{ transform:translateX(-100%); } .sidebar.open{ transform:translateX(0); box-shadow:0 0 60px rgba(0,0,0,0.6); } .main{ margin-left:0; } .menu-toggle{ display:flex; align-items:center; } .content{ padding:22px; } }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:45; }
+  .overlay.show{ display:block; }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:8px; margin-bottom:24px; }
+
+  /* Toolbar */
+  .notif-toolbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; flex-wrap:wrap; gap:12px; }
+  .filter-pills{ display:flex; gap:6px; flex-wrap:wrap; }
+  .filter-pill{ background:transparent; border:1px solid var(--border); color:var(--muted); font-size:0.8rem; font-weight:600; padding:7px 14px; border-radius:100px; cursor:pointer; transition:all var(--transition); font-family:var(--ff-body); }
+  .filter-pill:hover{ color:var(--text); border-color:rgba(255,255,255,0.25); }
+  .filter-pill.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+
+  .notif-list{ display:flex; flex-direction:column; }
+  .notif-item{
+    display:flex; gap:14px; align-items:flex-start; padding:16px 18px; border-top:1px solid var(--border);
+    transition:background var(--transition); cursor:pointer; position:relative;
+  }
+  .notif-item:hover{ background:rgba(255,255,255,0.025); }
+  .notif-item.unread{ background:rgba(59,130,246,0.045); }
+  .notif-item.unread::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--blue); }
+  .notif-icon{ width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
+  .notif-body{ flex:1; min-width:0; }
+  .notif-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .notif-title{ font-size:0.9rem; font-weight:600; color:var(--text); }
+  .notif-time{ font-size:0.72rem; color:var(--muted2); white-space:nowrap; flex-shrink:0; margin-top:2px; }
+  .notif-desc{ font-size:0.83rem; color:var(--muted); margin-top:3px; }
+  .notif-actions{ display:flex; gap:8px; margin-top:10px; }
+  .notif-dot-unread{ width:8px; height:8px; border-radius:50%; background:var(--blue); flex-shrink:0; margin-top:7px; }
+
+  .empty-state{ display:none; flex-direction:column; align-items:center; text-align:center; padding:60px 20px; }
+  .empty-state.show{ display:flex; }
+  .empty-state i{ font-size:2.6rem; color:var(--muted2); margin-bottom:16px; }
+  .empty-state h3{ font-size:1.05rem; margin-bottom:6px; }
+  .empty-state p{ font-size:0.86rem; max-width:320px; }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      HireFlow
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Candidate</div>
+      <a href="applicantdashboard.html" class="side-link"><i class="fa-solid fa-grid-2"></i> Dashboard</a>
+      <a href="applytodrive.html" class="side-link"><i class="fa-solid fa-paper-plane"></i> Apply to Drive</a>
+      <a href="applicationhistory.html" class="side-link"><i class="fa-solid fa-clipboard-list"></i> My Applications</a>
+      <a href="resumeanalysis.html" class="side-link"><i class="fa-solid fa-file-waveform"></i> Resume Analysis</a>
+      <a href="notifications.html" class="side-link active"><i class="fa-solid fa-bell"></i> Notifications <span class="side-badge" id="sideBadge">3</span></a>
+      <div class="nav-section-label">Account</div>
+      <a href="profile.html" class="side-link"><i class="fa-solid fa-user"></i> My Profile</a>
+      <a href="settings.html" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="side-user">
+        <div class="side-avatar">RS</div>
+        <div class="side-user-info">
+          <div class="side-user-name">Rahul Sharma</div>
+          <div class="side-user-role">Candidate</div>
+        </div>
+        <a href="login.html" class="side-logout" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>Notifications</h1>
+          <div class="crumb">Candidate / Notifications</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="notifications.html" class="icon-btn"><i class="fa-solid fa-bell"></i><span class="icon-dot" id="topDot"></span></a>
+        <div class="side-avatar" style="cursor:pointer;">RS</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="card">
+        <div class="notif-toolbar">
+          <div class="filter-pills" id="filterPills">
+            <button class="filter-pill active" data-filter="all">All</button>
+            <button class="filter-pill" data-filter="unread">Unread</button>
+            <button class="filter-pill" data-filter="interview">Interviews</button>
+            <button class="filter-pill" data-filter="application">Applications</button>
+            <button class="filter-pill" data-filter="resume">Resume</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="markAllReadBtn"><i class="fa-solid fa-check-double"></i> Mark all read</button>
+        </div>
+
+        <div class="notif-list" id="notifList"></div>
+
+        <div class="empty-state" id="emptyState">
+          <i class="fa-solid fa-bell-slash"></i>
+          <h3>No notifications here</h3>
+          <p>You're all caught up — nothing matches this filter right now.</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+
+  let notifications = [
+    { id:1, type:'interview', icon:'fa-calendar-check', color:'#3B82F6', bg:'rgba(59,130,246,0.15)', title:'Interview Scheduled', desc:'Your PI round for Frontend Engineer @ Pixelworks is scheduled for 30 Jun, 11:00 AM.', time:'10 min ago', unread:true },
+    { id:2, type:'resume', icon:'fa-file-waveform', color:'#06B6D4', bg:'rgba(6,182,212,0.15)', title:'Resume Analyzed', desc:'Your latest resume scored 86% ATS compatibility. View the full breakdown.', time:'2 hours ago', unread:true },
+    { id:3, type:'application', icon:'fa-circle-check', color:'#22C55E', bg:'rgba(34,197,94,0.15)', title:'Application Accepted', desc:'Congratulations! You\'ve been selected for SDE Intern 2026 @ Nimbus Cloud.', time:'Yesterday', unread:true },
+    { id:4, type:'application', icon:'fa-circle-xmark', color:'#EF4444', bg:'rgba(239,68,68,0.15)', title:'Application Rejected', desc:'Your application for DevOps Engineer @ Skyforge Systems was not shortlisted this time.', time:'2 days ago', unread:false },
+    { id:5, type:'interview', icon:'fa-calendar-check', color:'#3B82F6', bg:'rgba(59,130,246,0.15)', title:'Interview Reminder', desc:'Your AI screening round for ML Research Intern @ Cortex Labs starts in 24 hours.', time:'3 days ago', unread:false },
+    { id:6, type:'resume', icon:'fa-file-waveform', color:'#06B6D4', bg:'rgba(6,182,212,0.15)', title:'Resume Analyzed', desc:'A previous version of your resume scored 79% ATS compatibility.', time:'5 days ago', unread:false },
+    { id:7, type:'application', icon:'fa-paper-plane', color:'#94A3B8', bg:'rgba(255,255,255,0.06)', title:'Application Submitted', desc:'Your application for Full Stack Developer @ Brightloop was submitted successfully.', time:'1 week ago', unread:false },
+  ];
+
+  let activeFilter = 'all';
+
+  function updateBadges() {
+    const unreadCount = notifications.filter(n => n.unread).length;
+    const sideBadge = document.getElementById('sideBadge');
+    const topDot = document.getElementById('topDot');
+    sideBadge.textContent = unreadCount;
+    sideBadge.style.display = unreadCount > 0 ? 'inline-block' : 'none';
+    topDot.style.display = unreadCount > 0 ? 'block' : 'none';
+  }
+
+  function render() {
+    const list = document.getElementById('notifList');
+    const emptyState = document.getElementById('emptyState');
+
+    let filtered = notifications;
+    if (activeFilter === 'unread') filtered = notifications.filter(n => n.unread);
+    else if (activeFilter !== 'all') filtered = notifications.filter(n => n.type === activeFilter);
+
+    if (filtered.length === 0) {
+      list.innerHTML = '';
+      emptyState.classList.add('show');
+    } else {
+      emptyState.classList.remove('show');
+      list.innerHTML = filtered.map(n => `
+        <div class="notif-item ${n.unread ? 'unread' : ''}" data-id="${n.id}">
+          <div class="notif-icon" style="background:${n.bg};color:${n.color};"><i class="fa-solid ${n.icon}"></i></div>
+          <div class="notif-body">
+            <div class="notif-top">
+              <div class="notif-title">${n.title}</div>
+              <div class="notif-time">${n.time}</div>
+            </div>
+            <div class="notif-desc">${n.desc}</div>
+          </div>
+          ${n.unread ? '<div class="notif-dot-unread"></div>' : ''}
+        </div>
+      `).join('');
+    }
+    updateBadges();
+  }
+
+  document.getElementById('filterPills').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-pill');
+    if (!btn) return;
+    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    render();
+  });
+
+  document.getElementById('notifList').addEventListener('click', e => {
+    const item = e.target.closest('.notif-item');
+    if (!item) return;
+    const id = parseInt(item.dataset.id);
+    const n = notifications.find(x => x.id === id);
+    if (n) { n.unread = false; render(); }
+  });
+
+  document.getElementById('markAllReadBtn').addEventListener('click', () => {
+    notifications.forEach(n => n.unread = false);
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

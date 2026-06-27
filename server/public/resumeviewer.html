@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Viewer — HireFlow</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #0D1426;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(255,255,255,0.08);
+      --blue:      #3B82F6;
+      --blue-dark: #2563EB;
+      --blue-glow: rgba(59,130,246,0.18);
+      --cyan:      #06B6D4;
+      --green:     #22C55E;
+      --yellow:    #F59E0B;
+      --red:       #EF4444;
+      --text:      #F1F5F9;
+      --muted:     #94A3B8;
+      --muted2:    #64748B;
+      --ff-head:   'Space Grotesk', sans-serif;
+      --ff-body:   'Inter', sans-serif;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
+      transition: transform var(--transition);
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 9px;
+      padding: 22px 20px 18px; border-bottom: 1px solid var(--border);
+      font-family: var(--ff-head); font-size: 1.1rem; font-weight: 700;
+      color: #fff; text-decoration: none;
+    }
+    .logo-icon { width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .sidebar-nav { flex:1; padding:16px 12px; overflow-y:auto; }
+    .nav-section-label { font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);padding:0 8px;margin:16px 0 6px; }
+    .nav-item {
+      display:flex;align-items:center;gap:10px;
+      padding:9px 12px;border-radius:var(--radius);
+      color:var(--muted);font-size:.88rem;font-weight:500;
+      text-decoration:none;cursor:pointer;transition:all var(--transition);margin-bottom:2px;
+    }
+    .nav-item:hover { background:rgba(255,255,255,.05);color:var(--text); }
+    .nav-item.active { background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.25); }
+    .nav-item i { width:16px;text-align:center;font-size:.85rem; }
+    .sidebar-footer { padding:16px 12px;border-top:1px solid var(--border); }
+    .sidebar-user { display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);background:rgba(255,255,255,.03);cursor:pointer; }
+    .user-avatar { width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0; }
+    .user-name { font-size:.85rem;font-weight:600; }
+    .user-role { font-size:.72rem;color:var(--muted); }
+
+    .main { margin-left:240px; flex:1; display:flex; flex-direction:column; }
+
+    .topbar {
+      position:sticky;top:0;z-index:40;
+      background:rgba(10,15,30,.85);backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      padding:14px 28px;
+      display:flex;align-items:center;justify-content:space-between;
+    }
+    .topbar-left { display:flex;align-items:center;gap:14px; }
+    .back-btn {
+      display:flex;align-items:center;gap:6px;
+      color:var(--muted);font-size:.88rem;text-decoration:none;
+      padding:6px 10px;border-radius:8px;transition:all var(--transition);
+    }
+    .back-btn:hover { color:var(--text);background:rgba(255,255,255,.05); }
+    .page-title { font-family:var(--ff-head);font-size:1rem;font-weight:600; }
+    .topbar-right { display:flex;align-items:center;gap:10px; }
+    .hamburger-btn { display:none;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:6px; }
+
+    /* Content */
+    .content { padding:28px; display:grid; grid-template-columns:1fr 380px; gap:20px; align-items:start; }
+
+    /* PDF Preview Panel */
+    .pdf-panel {
+      background: var(--surface); border:1px solid var(--border);
+      border-radius:var(--radius-lg); overflow:hidden;
+      position:sticky; top:80px;
+    }
+    .pdf-toolbar {
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px; border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+    }
+    .pdf-toolbar-left { display:flex;align-items:center;gap:10px; }
+    .pdf-toolbar-right { display:flex;align-items:center;gap:8px; }
+    .pdf-pages { font-size:.8rem;color:var(--muted); }
+    .pdf-mock {
+      background: #fff; padding:40px 36px; min-height:760px;
+      font-family:'Inter',sans-serif; color:#1a1a2e; position:relative;
+    }
+    .resume-header-line {
+      border-bottom:2px solid #3B82F6; padding-bottom:18px; margin-bottom:20px;
+    }
+    .resume-name { font-size:1.6rem;font-weight:700;color:#0f172a;margin-bottom:4px; }
+    .resume-role { font-size:1rem;color:#3B82F6;font-weight:600;margin-bottom:8px; }
+    .resume-contact { display:flex;gap:16px;flex-wrap:wrap;font-size:.78rem;color:#64748B; }
+    .resume-contact span { display:flex;align-items:center;gap:4px; }
+    .resume-section { margin-bottom:20px; }
+    .resume-section-title {
+      font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+      color:#3B82F6;margin-bottom:10px;padding-bottom:4px;
+      border-bottom:1px solid #e2e8f0;
+    }
+    .resume-item { margin-bottom:12px; }
+    .resume-item-head { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px; }
+    .resume-item-title { font-weight:600;font-size:.88rem;color:#0f172a; }
+    .resume-item-date { font-size:.75rem;color:#94a3b8; }
+    .resume-item-sub { font-size:.8rem;color:#3B82F6;font-weight:500;margin-bottom:4px; }
+    .resume-item-desc { font-size:.78rem;color:#475569;line-height:1.5; }
+    .resume-skills-wrap { display:flex;flex-wrap:wrap;gap:6px; }
+    .resume-skill-tag {
+      font-size:.72rem;font-weight:600;padding:3px 10px;
+      background:#eff6ff;color:#3B82F6;border-radius:100px;
+    }
+    .resume-watermark {
+      position:absolute;bottom:16px;right:16px;
+      font-size:.68rem;color:#cbd5e1;letter-spacing:.06em;
+    }
+
+    /* Right Panel */
+    .right-panel { display:flex;flex-direction:column;gap:16px; }
+
+    .card {
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius-lg);padding:20px;
+    }
+    .card-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border); }
+    .card-title { font-family:var(--ff-head);font-size:.95rem;font-weight:600;display:flex;align-items:center;gap:8px; }
+    .card-title i { color:var(--blue);font-size:.85rem; }
+
+    /* Score Ring */
+    .score-ring-wrap { display:flex;flex-direction:column;align-items:center;gap:8px;padding:8px 0; }
+    .score-ring { position:relative;width:100px;height:100px; }
+    .score-ring svg { transform:rotate(-90deg); }
+    .score-ring circle { fill:none;stroke-width:8; }
+    .ring-bg { stroke:rgba(255,255,255,.07); }
+    .ring-fill { stroke:url(#ringGrad);stroke-dasharray:283;stroke-linecap:round;transition:stroke-dashoffset .8s ease; }
+    .ring-value {
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      font-family:var(--ff-head);font-size:1.3rem;font-weight:700;color:var(--blue);
+    }
+    .ring-label { font-size:.6rem;color:var(--muted);margin-top:-2px; }
+    .score-label-main { font-size:.85rem;font-weight:600;color:var(--text); }
+    .score-label-sub  { font-size:.75rem;color:var(--muted); }
+
+    /* Tag sets */
+    .tag-wrap { display:flex;flex-wrap:wrap;gap:6px; }
+    .tag {
+      font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:100px;
+    }
+    .tag-blue   { background:var(--blue-glow);color:var(--blue);border:1px solid rgba(59,130,246,.3); }
+    .tag-green  { background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3); }
+    .tag-red    { background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3); }
+    .tag-yellow { background:rgba(245,158,11,.12);color:var(--yellow);border:1px solid rgba(245,158,11,.3); }
+    .tag-muted  { background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border); }
+
+    /* Info rows */
+    .info-row { display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+    .info-row:last-child { border-bottom:none;padding-bottom:0; }
+    .info-icon { width:32px;height:32px;border-radius:8px;background:var(--blue-glow);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .info-icon i { color:var(--blue);font-size:.8rem; }
+    .info-content {}
+    .info-label { font-size:.72rem;color:var(--muted); }
+    .info-value { font-size:.88rem;font-weight:600; }
+
+    /* AI Summary */
+    .ai-bubble {
+      background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(6,182,212,.05));
+      border:1px solid rgba(59,130,246,.2);
+      border-radius:var(--radius);padding:14px;font-size:.85rem;color:var(--muted);line-height:1.6;
+    }
+    .ai-bubble strong { color:var(--text); }
+
+    /* Buttons */
+    .btn { display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--radius);font-family:var(--ff-body);font-size:.85rem;font-weight:600;cursor:pointer;border:none;text-decoration:none;transition:all var(--transition);white-space:nowrap; }
+    .btn-primary { background:var(--blue);color:#fff;box-shadow:0 0 24px rgba(59,130,246,.35); }
+    .btn-primary:hover { background:var(--blue-dark);box-shadow:0 0 36px rgba(59,130,246,.55);transform:translateY(-2px); }
+    .btn-ghost { background:transparent;color:var(--text);border:1px solid var(--border); }
+    .btn-ghost:hover { border-color:rgba(255,255,255,.25);background:rgba(255,255,255,.04); }
+    .btn-sm { padding:7px 14px;font-size:.78rem; }
+
+    /* Toast */
+    .toast-container { position:fixed;top:20px;right:20px;z-index:1000;display:flex;flex-direction:column;gap:10px; }
+    .toast { display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.4);min-width:280px;animation:slideIn .3s ease; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none} }
+    .toast.success { border-color:rgba(34,197,94,.4); }
+    .toast-icon { font-size:1.1rem;color:var(--green); }
+    .toast-msg { flex:1;font-size:.88rem; }
+    .toast-close { background:none;border:none;color:var(--muted);cursor:pointer; }
+
+    @media(max-width:900px) {
+      .content { grid-template-columns:1fr; }
+      .pdf-panel { position:static; }
+    }
+    @media(max-width:768px) {
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:none; }
+      .main { margin-left:0; }
+      .hamburger-btn { display:block; }
+      .content { padding:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <a href="interviewerdashboard.html" class="sidebar-logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      HireFlow
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Menu</div>
+      <a class="nav-item" href="interviewerdashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+      <a class="nav-item" href="assignedinterviews.html"><i class="fa-solid fa-calendar-check"></i> Assigned Interviews</a>
+      <a class="nav-item" href="interviewfeedback.html"><i class="fa-solid fa-star-half-stroke"></i> Submit Feedback</a>
+      <a class="nav-item active" href="resumeviewer.html"><i class="fa-solid fa-file-pdf"></i> Resume Viewer</a>
+      <div class="nav-section-label">Account</div>
+      <a class="nav-item" href="notifications.html"><i class="fa-solid fa-bell"></i> Notifications</a>
+      <a class="nav-item" href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">DR</div>
+        <div>
+          <div class="user-name">Dr. Ramesh Kumar</div>
+          <div class="user-role">Interviewer</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger-btn" id="hamburgerBtn"><i class="fa-solid fa-bars"></i></button>
+        <a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back</a>
+        <div class="page-title"><i class="fa-solid fa-file-pdf" style="color:var(--red);margin-right:6px;"></i>Resume Viewer</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="showToast('Printing resume…')"><i class="fa-solid fa-print"></i> Print</button>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Download started!')"><i class="fa-solid fa-download"></i> Download PDF</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- PDF Preview -->
+      <div class="pdf-panel">
+        <div class="pdf-toolbar">
+          <div class="pdf-toolbar-left">
+            <i class="fa-regular fa-file-pdf" style="color:var(--red);font-size:1.1rem;"></i>
+            <span style="font-size:.85rem;font-weight:600;">Arjun_Kapoor_Resume.pdf</span>
+          </div>
+          <div class="pdf-toolbar-right">
+            <span class="pdf-pages">Page 1 of 1</span>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('Download started!')"><i class="fa-solid fa-download"></i></button>
+          </div>
+        </div>
+        <!-- Simulated Resume Document -->
+        <div class="pdf-mock">
+          <div class="resume-header-line">
+            <div class="resume-name">Arjun Kapoor</div>
+            <div class="resume-role">Software Engineer | Full Stack Developer</div>
+            <div class="resume-contact">
+              <span><i class="fa-solid fa-envelope"></i> arjun.kapoor@email.com</span>
+              <span><i class="fa-solid fa-phone"></i> +91 98765 43210</span>
+              <span><i class="fa-brands fa-linkedin"></i> linkedin.com/in/arjunkapoor</span>
+              <span><i class="fa-brands fa-github"></i> github.com/arjunkapoor</span>
+              <span><i class="fa-solid fa-location-dot"></i> Mumbai, India</span>
+            </div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Professional Summary</div>
+            <p style="font-size:.8rem;color:#475569;line-height:1.6;">Final year Computer Science student at IIT Bombay with strong foundations in full-stack development, algorithms, and system design. Experienced in building scalable web applications using React, Node.js, and cloud infrastructure. Passionate about AI/ML integration in real-world products.</p>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Education</div>
+            <div class="resume-item">
+              <div class="resume-item-head">
+                <div class="resume-item-title">B.Tech, Computer Science & Engineering</div>
+                <div class="resume-item-date">2021 – 2025</div>
+              </div>
+              <div class="resume-item-sub">Indian Institute of Technology, Bombay</div>
+              <div class="resume-item-desc">CGPA: 8.7 / 10 &nbsp;·&nbsp; Relevant: Data Structures, OS, DBMS, ML, Computer Networks</div>
+            </div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Experience</div>
+            <div class="resume-item">
+              <div class="resume-item-head">
+                <div class="resume-item-title">Software Development Intern</div>
+                <div class="resume-item-date">Jun – Aug 2024</div>
+              </div>
+              <div class="resume-item-sub">Flipkart · Bangalore, India</div>
+              <div class="resume-item-desc">• Built a real-time inventory dashboard reducing stock discrepancy alerts by 34%<br>• Optimised MongoDB queries cutting API response time from 420ms to 80ms<br>• Integrated Redis caching layer handling 50k+ requests/day</div>
+            </div>
+            <div class="resume-item">
+              <div class="resume-item-head">
+                <div class="resume-item-title">Frontend Developer Intern</div>
+                <div class="resume-item-date">Dec 2023 – Feb 2024</div>
+              </div>
+              <div class="resume-item-sub">Razorpay · Remote</div>
+              <div class="resume-item-desc">• Redesigned merchant onboarding UI achieving 22% improvement in completion rate<br>• Worked with React, TypeScript, and Storybook; wrote unit tests with Jest</div>
+            </div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Projects</div>
+            <div class="resume-item">
+              <div class="resume-item-head">
+                <div class="resume-item-title">EduAI – Personalised Learning Platform</div>
+                <div class="resume-item-date">2024</div>
+              </div>
+              <div class="resume-item-desc">Full-stack app using React, FastAPI, OpenAI GPT-4. Adaptive quiz generation with 200+ active users. Won 1st place at IIT Bombay Hackathon 2024.</div>
+            </div>
+            <div class="resume-item">
+              <div class="resume-item-head">
+                <div class="resume-item-title">SmartExpense – AI Budget Tracker</div>
+                <div class="resume-item-date">2023</div>
+              </div>
+              <div class="resume-item-desc">React Native app with OCR-based receipt scanning, categorisation and monthly forecast charts. 500+ downloads on Play Store.</div>
+            </div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Skills</div>
+            <div class="resume-skills-wrap">
+              <span class="resume-skill-tag">React</span>
+              <span class="resume-skill-tag">Node.js</span>
+              <span class="resume-skill-tag">TypeScript</span>
+              <span class="resume-skill-tag">Python</span>
+              <span class="resume-skill-tag">MongoDB</span>
+              <span class="resume-skill-tag">PostgreSQL</span>
+              <span class="resume-skill-tag">Redis</span>
+              <span class="resume-skill-tag">Docker</span>
+              <span class="resume-skill-tag">AWS</span>
+              <span class="resume-skill-tag">FastAPI</span>
+              <span class="resume-skill-tag">GraphQL</span>
+              <span class="resume-skill-tag">Git</span>
+              <span class="resume-skill-tag">Machine Learning</span>
+              <span class="resume-skill-tag">System Design</span>
+            </div>
+          </div>
+
+          <div class="resume-section">
+            <div class="resume-section-title">Achievements</div>
+            <div style="font-size:.78rem;color:#475569;line-height:1.8;">
+              • Winner — IIT Bombay Hackathon 2024 (200+ teams)<br>
+              • AIR 1247 — JEE Advanced 2021<br>
+              • Google Summer of Code 2024 Contributor (TensorFlow)<br>
+              • Open Source: 12 merged PRs to major React libraries
+            </div>
+          </div>
+
+          <div class="resume-watermark">HireFlow · Verified Document</div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+
+        <!-- Candidate Details -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-user"></i> Candidate Details</div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><i class="fa-solid fa-user"></i></div>
+            <div class="info-content">
+              <div class="info-label">Full Name</div>
+              <div class="info-value">Arjun Kapoor</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><i class="fa-solid fa-briefcase"></i></div>
+            <div class="info-content">
+              <div class="info-label">Applied Role</div>
+              <div class="info-value">Software Engineer Intern</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><i class="fa-solid fa-building"></i></div>
+            <div class="info-content">
+              <div class="info-label">Organisation</div>
+              <div class="info-value">TechVenture Solutions</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="info-content">
+              <div class="info-label">College</div>
+              <div class="info-value">IIT Bombay</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-icon"><i class="fa-regular fa-calendar"></i></div>
+            <div class="info-content">
+              <div class="info-label">Applied On</div>
+              <div class="info-value">June 14, 2025</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ATS Score -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-chart-simple"></i> ATS Score</div>
+            <span class="tag tag-green" style="font-size:.7rem;">Excellent</span>
+          </div>
+          <div class="score-ring-wrap">
+            <svg width="0" height="0">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#3B82F6"/>
+                  <stop offset="100%" stop-color="#06B6D4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="score-ring">
+              <svg viewBox="0 0 100 100" width="100" height="100">
+                <circle class="ring-bg" cx="50" cy="50" r="45"/>
+                <circle class="ring-fill" id="atsRingFill" cx="50" cy="50" r="45" stroke-dashoffset="25"/>
+              </svg>
+              <div class="ring-value">92<span class="ring-label">/ 100</span></div>
+            </div>
+            <div class="score-label-main">ATS Match Score</div>
+            <div class="score-label-sub">Resume aligns strongly with job requirements</div>
+          </div>
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
+              <div style="font-family:var(--ff-head);font-size:1.2rem;font-weight:700;color:var(--blue);">87%</div>
+              <div style="font-size:.7rem;color:var(--muted);">AI Match</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;">
+              <div style="font-family:var(--ff-head);font-size:1.2rem;font-weight:700;color:var(--green);">Round 2</div>
+              <div style="font-size:.7rem;color:var(--muted);">Current Stage</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-tags"></i> Extracted Skills</div>
+            <span style="font-size:.75rem;color:var(--muted);">14 detected</span>
+          </div>
+          <div class="tag-wrap" style="margin-bottom:12px;">
+            <span class="tag tag-blue">React</span>
+            <span class="tag tag-blue">Node.js</span>
+            <span class="tag tag-blue">TypeScript</span>
+            <span class="tag tag-blue">Python</span>
+            <span class="tag tag-blue">MongoDB</span>
+            <span class="tag tag-blue">Docker</span>
+            <span class="tag tag-blue">AWS</span>
+            <span class="tag tag-blue">FastAPI</span>
+            <span class="tag tag-blue">Redis</span>
+            <span class="tag tag-blue">GraphQL</span>
+            <span class="tag tag-muted">PostgreSQL</span>
+            <span class="tag tag-muted">ML</span>
+            <span class="tag tag-muted">System Design</span>
+            <span class="tag tag-muted">Git</span>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);padding-top:10px;border-top:1px solid var(--border);">
+            <i class="fa-solid fa-triangle-exclamation" style="color:var(--yellow);"></i> Missing: Kubernetes, Kafka, Terraform
+          </div>
+        </div>
+
+        <!-- AI Summary -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-robot"></i> AI Summary</div>
+            <span class="tag tag-blue" style="font-size:.7rem;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span>
+          </div>
+          <div class="ai-bubble">
+            <strong>Strong technical candidate</strong> with proven internship experience at top-tier companies (Flipkart, Razorpay). Demonstrates <strong>full-stack proficiency</strong> with measurable impact metrics. Hackathon win and open source contributions indicate initiative and depth beyond coursework. <strong>Recommend proceeding to technical interview</strong> with focus on system design and backend scaling challenges.
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="card" style="padding:16px 20px;">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <a href="interviewfeedback.html" class="btn btn-primary" style="justify-content:center;"><i class="fa-solid fa-star-half-stroke"></i> Submit Feedback</a>
+            <button class="btn btn-ghost" style="justify-content:center;" onclick="showToast('Download started!')"><i class="fa-solid fa-download"></i> Download PDF</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ATS ring animation
+  window.addEventListener('load', () => {
+    const fill = document.getElementById('atsRingFill');
+    const circumference = 2 * Math.PI * 45;
+    const score = 92;
+    const offset = circumference - (score / 100) * circumference;
+    fill.style.strokeDasharray = circumference;
+    fill.style.strokeDashoffset = circumference;
+    setTimeout(() => { fill.style.transition = 'stroke-dashoffset 1s ease'; fill.style.strokeDashoffset = offset; }, 300);
+  });
+
+  function showToast(msg) {
+    const tc = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast success';
+    t.innerHTML = `<i class="toast-icon fa-solid fa-circle-check"></i><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>`;
+    tc.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+</script>
+</body>
+</html>

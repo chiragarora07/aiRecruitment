@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Application History — HireFlow</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg:        #0A0F1E;
+    --bg2:       #0D1426;
+    --surface:   #111827;
+    --surface2:  #1a2235;
+    --border:    rgba(255,255,255,0.08);
+    --blue:      #3B82F6;
+    --blue-dark: #2563EB;
+    --blue-glow: rgba(59,130,246,0.18);
+    --cyan:      #06B6D4;
+    --green:     #22C55E;
+    --amber:     #F59E0B;
+    --text:      #F1F5F9;
+    --muted:     #94A3B8;
+    --muted2:    #64748B;
+    --white:     #FFFFFF;
+    --red:       #EF4444;
+    --ff-head:   'Space Grotesk', sans-serif;
+    --ff-body:   'Inter', sans-serif;
+    --radius:    12px;
+    --radius-lg: 20px;
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:16px;}
+  body{ background:var(--bg); color:var(--text); font-family:var(--ff-body); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1,h2,h3,h4{font-family:var(--ff-head); font-weight:700; line-height:1.2; color:var(--text);}
+  p{color:var(--muted);}
+  a{color:inherit;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:8px;}
+
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border-radius:var(--radius); font-family:var(--ff-body); font-size:0.9rem; font-weight:600; cursor:pointer; border:none; text-decoration:none; transition:all var(--transition); white-space:nowrap; }
+  .btn-primary{ background:var(--blue); color:#fff; box-shadow:0 0 24px rgba(59,130,246,0.35); }
+  .btn-primary:hover{ background:var(--blue-dark); box-shadow:0 0 36px rgba(59,130,246,0.55); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--border); }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.04); transform:translateY(-2px); }
+  .btn-sm{ padding:7px 14px; font-size:0.8rem; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  /* ══ APP SHELL ══ */
+  .app{ display:flex; min-height:100vh; }
+  .sidebar{ width:264px; flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; transition:transform 0.3s ease; }
+  .sidebar-logo{ display:flex; align-items:center; gap:9px; padding:22px 22px; font-family:var(--ff-head); font-size:1.2rem; font-weight:700; color:var(--white); text-decoration:none; border-bottom:1px solid var(--border); }
+  .sidebar-nav{ flex:1; overflow-y:auto; padding:18px 14px; display:flex; flex-direction:column; gap:3px; }
+  .nav-section-label{ font-size:0.68rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted2); padding:14px 12px 6px; }
+  .side-link{ display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.88rem; font-weight:500; transition:all var(--transition); position:relative; }
+  .side-link i{ width:18px; text-align:center; font-size:0.95rem; }
+  .side-link:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
+  .side-link.active{ background:var(--blue-glow); color:var(--blue); }
+  .side-link.active::before{ content:''; position:absolute; left:-14px; top:50%; transform:translateY(-50%); width:3px; height:18px; background:var(--blue); border-radius:4px; }
+  .side-badge{ margin-left:auto; font-size:0.65rem; font-weight:700; background:var(--red); color:#fff; border-radius:100px; padding:1px 7px; min-width:18px; text-align:center; }
+  .sidebar-foot{ padding:14px; border-top:1px solid var(--border); }
+  .side-user{ display:flex; align-items:center; gap:10px; padding:8px; border-radius:10px; }
+  .side-avatar{ width:36px; height:36px; border-radius:50%; background:var(--blue-glow); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; flex-shrink:0; border:1px solid rgba(59,130,246,0.3); }
+  .side-user-info{ flex:1; min-width:0; }
+  .side-user-name{ font-size:0.84rem; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .side-user-role{ font-size:0.72rem; color:var(--muted2); }
+  .side-logout{ color:var(--muted); cursor:pointer; padding:6px; border-radius:8px; transition:all var(--transition); }
+  .side-logout:hover{ color:var(--red); background:rgba(239,68,68,0.1); }
+  .main{ flex:1; margin-left:264px; min-width:0; }
+  .topbar{ height:72px; display:flex; align-items:center; justify-content:space-between; gap:20px; padding:0 32px; border-bottom:1px solid var(--border); position:sticky; top:0; background:rgba(10,15,30,0.85); backdrop-filter:blur(16px); z-index:40; }
+  .topbar-title h1{ font-size:1.3rem; }
+  .topbar-title .crumb{ font-size:0.78rem; color:var(--muted2); margin-top:2px; }
+  .menu-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.2rem; cursor:pointer; }
+  .topbar-right{ display:flex; align-items:center; gap:16px; }
+  .icon-btn{ width:38px; height:38px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:pointer; transition:all var(--transition); position:relative; text-decoration:none; }
+  .icon-btn:hover{ color:var(--text); border-color:rgba(255,255,255,0.2); }
+  .icon-dot{ position:absolute; top:6px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--red); border:1.5px solid var(--surface); }
+  .content{ padding:32px; max-width:1280px; }
+  @media (max-width:1024px){ .sidebar{ transform:translateX(-100%); } .sidebar.open{ transform:translateX(0); box-shadow:0 0 60px rgba(0,0,0,0.6); } .main{ margin-left:0; } .menu-toggle{ display:flex; align-items:center; } .content{ padding:22px; } }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:45; }
+  .overlay.show{ display:block; }
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:24px; margin-bottom:24px; }
+
+  /* Stat strip */
+  .stats-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:24px; }
+  .stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; display:flex; align-items:center; gap:14px; transition:all var(--transition); }
+  .stat-card:hover{ border-color:rgba(59,130,246,0.3); transform:translateY(-3px); }
+  .stat-icon{ width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1rem; }
+  .stat-num{ font-family:var(--ff-head); font-size:1.4rem; font-weight:700; }
+  .stat-label{ font-size:0.76rem; color:var(--muted); }
+
+  /* Toolbar */
+  .toolbar{ display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .search-bar{ flex:1; min-width:220px; display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; transition:all var(--transition); }
+  .search-bar:focus-within{ border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-glow); }
+  .search-bar i{ color:var(--muted2); font-size:0.85rem; }
+  .search-bar input{ background:none; border:none; outline:none; color:var(--text); font-family:var(--ff-body); font-size:0.88rem; width:100%; }
+  .filter-select{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:var(--ff-body); font-size:0.85rem; cursor:pointer; }
+  .filter-select:focus{ outline:none; border-color:var(--blue); }
+
+  /* Table */
+  .table-wrap{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:920px; }
+  thead th{ text-align:left; font-size:0.74rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted2); font-weight:600; padding:0 14px 12px; border-bottom:1px solid var(--border); white-space:nowrap; }
+  tbody td{ padding:16px 14px; border-bottom:1px solid var(--border); font-size:0.86rem; vertical-align:middle; }
+  tbody tr{ transition:background var(--transition); }
+  tbody tr:hover{ background:rgba(255,255,255,0.02); }
+  tbody tr:last-child td{ border-bottom:none; }
+  .drive-cell{ display:flex; align-items:center; gap:12px; }
+  .drive-logo{ width:38px; height:38px; border-radius:9px; background:var(--blue-glow); border:1px solid rgba(59,130,246,0.25); color:var(--blue); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.78rem; flex-shrink:0; }
+  .drive-name{ font-weight:600; color:var(--text); font-size:0.88rem; }
+  .drive-role{ font-size:0.76rem; color:var(--muted2); }
+  .score-pill{ font-family:var(--ff-head); font-weight:700; font-size:0.88rem; }
+  .badge{ display:inline-flex; align-items:center; gap:6px; font-size:0.72rem; font-weight:600; padding:4px 11px; border-radius:100px; white-space:nowrap; }
+  .badge-green{ background:rgba(34,197,94,0.15); color:#22C55E; border:1px solid rgba(34,197,94,0.3); }
+  .badge-amber{ background:rgba(245,158,11,0.15); color:#F59E0B; border:1px solid rgba(245,158,11,0.3); }
+  .badge-red{ background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3); }
+  .badge-blue{ background:var(--blue-glow); color:var(--blue); border:1px solid rgba(59,130,246,0.3); }
+  .badge-grey{ background:rgba(255,255,255,0.06); color:var(--muted); border:1px solid var(--border); }
+  .row-actions{ display:flex; gap:8px; }
+  .icon-action{ width:32px; height:32px; border-radius:8px; background:transparent; border:1px solid var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.8rem; transition:all var(--transition); text-decoration:none; }
+  .icon-action:hover{ color:var(--text); border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.04); }
+
+  /* Empty state */
+  .empty-state{ display:none; flex-direction:column; align-items:center; text-align:center; padding:60px 20px; }
+  .empty-state.show{ display:flex; }
+  .empty-state i{ font-size:2.6rem; color:var(--muted2); margin-bottom:16px; }
+  .empty-state h3{ font-size:1.05rem; margin-bottom:6px; }
+  .empty-state p{ font-size:0.86rem; max-width:320px; }
+
+  /* Pagination */
+  .pagination{ display:flex; align-items:center; justify-content:space-between; margin-top:18px; flex-wrap:wrap; gap:12px; }
+  .pagination .info{ font-size:0.8rem; color:var(--muted2); }
+  .page-btns{ display:flex; gap:6px; }
+  .page-btn{ width:34px; height:34px; border-radius:8px; background:var(--surface); border:1px solid var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.82rem; transition:all var(--transition); }
+  .page-btn:hover{ border-color:rgba(255,255,255,0.25); color:var(--text); }
+  .page-btn.active{ background:var(--blue); color:#fff; border-color:var(--blue); }
+
+  @media (max-width:768px){ .stats-row{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:480px){ .stats-row{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect width="28" height="28" rx="7" fill="#3B82F6"/><path d="M7 10h14M7 14h9M7 18h12" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="21" cy="18" r="4" fill="#0A0F1E" stroke="#06B6D4" stroke-width="1.5"/><path d="M19.5 18l1 1 1.5-1.5" stroke="#06B6D4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      HireFlow
+    </a>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Candidate</div>
+      <a href="applicantdashboard.html" class="side-link"><i class="fa-solid fa-grid-2"></i> Dashboard</a>
+      <a href="applytodrive.html" class="side-link"><i class="fa-solid fa-paper-plane"></i> Apply to Drive</a>
+      <a href="applicationhistory.html" class="side-link active"><i class="fa-solid fa-clipboard-list"></i> My Applications</a>
+      <a href="resumeanalysis.html" class="side-link"><i class="fa-solid fa-file-waveform"></i> Resume Analysis</a>
+      <a href="notifications.html" class="side-link"><i class="fa-solid fa-bell"></i> Notifications <span class="side-badge">3</span></a>
+      <div class="nav-section-label">Account</div>
+      <a href="profile.html" class="side-link"><i class="fa-solid fa-user"></i> My Profile</a>
+      <a href="settings.html" class="side-link"><i class="fa-solid fa-gear"></i> Settings</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="side-user">
+        <div class="side-avatar">RS</div>
+        <div class="side-user-info">
+          <div class="side-user-name">Rahul Sharma</div>
+          <div class="side-user-role">Candidate</div>
+        </div>
+        <a href="login.html" class="side-logout" title="Log out"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <button class="menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        <div class="topbar-title">
+          <h1>My Applications</h1>
+          <div class="crumb">Candidate / Application History</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="notifications.html" class="icon-btn"><i class="fa-solid fa-bell"></i><span class="icon-dot"></span></a>
+        <div class="side-avatar" style="cursor:pointer;">RS</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--blue-glow);color:var(--blue);"><i class="fa-solid fa-paper-plane"></i></div>
+          <div><div class="stat-num">8</div><div class="stat-label">Total Applied</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(34,197,94,0.12);color:#22C55E;"><i class="fa-solid fa-circle-check"></i></div>
+          <div><div class="stat-num">3</div><div class="stat-label">Selected</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.12);color:#F59E0B;"><i class="fa-solid fa-hourglass-half"></i></div>
+          <div><div class="stat-num">2</div><div class="stat-label">In Progress</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(239,68,68,0.12);color:#EF4444;"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div><div class="stat-num">3</div><div class="stat-label">Rejected</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Search by drive name, role, or organisation...">
+          </div>
+          <select class="filter-select" id="statusFilter">
+            <option value="all">All Status</option>
+            <option value="selected">Selected</option>
+            <option value="interview">Interview Scheduled</option>
+            <option value="review">Under Review</option>
+            <option value="waitlist">Waitlisted</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <select class="filter-select" id="sortFilter">
+            <option value="recent">Sort: Most Recent</option>
+            <option value="match">Sort: AI Match %</option>
+            <option value="ats">Sort: ATS Score</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Drive</th>
+                <th>Applied On</th>
+                <th>ATS Score</th>
+                <th>AI Match %</th>
+                <th>Interview</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <i class="fa-solid fa-inbox"></i>
+          <h3>No applications found</h3>
+          <p>Try adjusting your search or filter — or apply to a new drive to get started.</p>
+        </div>
+
+        <div class="pagination">
+          <div class="info" id="paginationInfo">Showing 1–8 of 8 applications</div>
+          <div class="page-btns">
+            <button class="page-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  document.getElementById('menuToggle').addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('show'); });
+  overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('show'); });
+
+  const applications = [
+    { drive:'SDE Intern 2026', org:'Nimbus Cloud', initials:'NC', date:'18 Jun 2026', ats:91, match:88, interview:'Completed', status:'selected' },
+    { drive:'Frontend Engineer', org:'Pixelworks', initials:'PW', date:'15 Jun 2026', ats:84, match:79, interview:'Scheduled — 30 Jun, 11:00 AM', status:'interview' },
+    { drive:'ML Research Intern', org:'Cortex Labs', initials:'CL', date:'10 Jun 2026', ats:88, match:92, interview:'Pending', status:'review' },
+    { drive:'Backend Developer', org:'Stackline Inc.', initials:'SI', date:'05 Jun 2026', ats:76, match:71, interview:'Not Scheduled', status:'waitlist' },
+    { drive:'Data Analyst Intern', org:'Quantix Analytics', initials:'QA', date:'30 May 2026', ats:69, match:64, interview:'Rejected at Screening', status:'rejected' },
+    { drive:'Product Design Intern', org:'Studio North', initials:'SN', date:'27 May 2026', ats:81, match:75, interview:'Completed', status:'selected' },
+    { drive:'DevOps Engineer', org:'Skyforge Systems', initials:'SF', date:'20 May 2026', ats:58, match:52, interview:'Rejected at Screening', status:'rejected' },
+    { drive:'Full Stack Developer', org:'Brightloop', initials:'BL', date:'12 May 2026', ats:93, match:90, interview:'Completed', status:'selected' },
+  ];
+
+  const statusMap = {
+    selected:  { label:'Selected',  cls:'badge-green' },
+    interview: { label:'Interview Scheduled', cls:'badge-blue' },
+    review:    { label:'Under Review', cls:'badge-grey' },
+    waitlist:  { label:'Waitlisted', cls:'badge-amber' },
+    rejected:  { label:'Rejected',  cls:'badge-red' },
+  };
+
+  function scoreColor(score) {
+    if (score >= 85) return '#22C55E';
+    if (score >= 70) return '#F59E0B';
+    return '#EF4444';
+  }
+
+  function render() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const statusVal = document.getElementById('statusFilter').value;
+    const sortVal = document.getElementById('sortFilter').value;
+
+    let rows = applications.filter(a => {
+      const matchesSearch = a.drive.toLowerCase().includes(search) || a.org.toLowerCase().includes(search);
+      const matchesStatus = statusVal === 'all' || a.status === statusVal;
+      return matchesSearch && matchesStatus;
+    });
+
+    if (sortVal === 'match') rows = rows.slice().sort((a,b) => b.match - a.match);
+    if (sortVal === 'ats') rows = rows.slice().sort((a,b) => b.ats - a.ats);
+
+    const tbody = document.getElementById('tableBody');
+    const emptyState = document.getElementById('emptyState');
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      emptyState.classList.add('show');
+    } else {
+      emptyState.classList.remove('show');
+      tbody.innerHTML = rows.map(a => `
+        <tr>
+          <td>
+            <div class="drive-cell">
+              <div class="drive-logo">${a.initials}</div>
+              <div>
+                <div class="drive-name">${a.drive}</div>
+                <div class="drive-role">${a.org}</div>
+              </div>
+            </div>
+          </td>
+          <td>${a.date}</td>
+          <td><span class="score-pill" style="color:${scoreColor(a.ats)}">${a.ats}%</span></td>
+          <td><span class="score-pill" style="color:${scoreColor(a.match)}">${a.match}%</span></td>
+          <td style="color:var(--muted);font-size:0.82rem;">${a.interview}</td>
+          <td><span class="badge ${statusMap[a.status].cls}">${statusMap[a.status].label}</span></td>
+          <td>
+            <div class="row-actions">
+              <a href="resumeviewer.html" class="icon-action" title="Download Resume"><i class="fa-solid fa-download"></i></a>
+              <a href="resumeanalysis.html" class="icon-action" title="View Analysis"><i class="fa-solid fa-chart-simple"></i></a>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('paginationInfo').textContent = `Showing 1–${rows.length} of ${rows.length} applications`;
+  }
+
+  document.getElementById('searchInput').addEventListener('input', render);
+  document.getElementById('statusFilter').addEventListener('change', render);
+  document.getElementById('sortFilter').addEventListener('change', render);
+
+  render();
+</script>
+</body>
+</html>
